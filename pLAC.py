@@ -1,3 +1,20 @@
+"""
+parallel conversion of a large library of lossless audio files (ALAC & FLAC) to lossy MP3
+
+ ________  ___       ________  ________
+|\   __  \|\  \     |\   __  \|\   ____\
+\ \  \|\  \ \  \    \ \  \|\  \ \  \___|
+ \ \   ____\ \  \    \ \   __  \ \  \
+  \ \  \___|\ \  \____\ \  \ \  \ \  \____
+   \ \__\    \ \_______\ \__\ \__\ \_______\
+    \|__|     \|_______|\|__|\|__|\|_______|
+
+Copyright (c) Fabrice Zaoui
+
+Licence GNU GPL v3
+
+"""
+
 import os
 import subprocess
 import sys
@@ -293,8 +310,6 @@ class App(QWidget):
             m = int((totsec % 3600) // 60)
             sec = int((totsec % 3600) % 60)
             self.elapsed_time.display('%03d:%02d:%02d'%(h, m, sec))
-
-
 
 
 if __name__ == '__main__':
