@@ -22,8 +22,8 @@ import logging
 import glob
 import multiprocessing as mp
 import psutil
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QPlainTextEdit, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel
-from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, QTimer, QDateTime
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QPlainTextEdit, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
+from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, QTimer, QDateTime, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5 import sip
 
@@ -31,11 +31,12 @@ from PyQt5 import sip
 class mp3Thread(QThread):
     update_progress_bar = pyqtSignal()
 
-    def __init__(self, audio_files, alac_flac_location, mp3_location):
+    def __init__(self, audio_files, alac_flac_location, mp3_location, qvalue):
         QThread.__init__(self)
         self.audio_files = audio_files
         self.alac_flac_location = alac_flac_location
         self.mp3_location = mp3_location
+        self.qval = qvalue
         self.sep = '/'
         self.null = '/dev/null'
         if os.name == 'nt':
@@ -45,7 +46,7 @@ class mp3Thread(QThread):
     def __del__(self):
         self.wait()
 
-    def convert2mp3(self, audio_file_in):
+    def convert2mp3(self, audio_file_in, qval):
         path_audio = os.path.dirname(audio_file_in)
         file_name = os.path.splitext(os.path.basename(audio_file_in))[0]
         len_indir = len(self.alac_flac_location)
@@ -60,17 +61,18 @@ class mp3Thread(QThread):
         ext = 'mp3'
         audio_file = file_name + '.' + ext
         audio_file_out = path_audio + self.sep + audio_file
+        qval = str(self.qval)
         if not os.path.isfile(audio_file_out):
                 subprocess.call('ffmpeg -nostats -loglevel 0 -i '
                       + '"' + audio_file_in + '"'
-                      + ' -vn -acodec libmp3lame -q:a 0 -map_metadata 0'
+                      + ' -vn -acodec libmp3lame -q:a '+ qval + ' -map_metadata 0'
                       + ' -id3v2_version 3 '
                       + '"' + audio_file_out + '"' + ' > ' + self.null,
                             shell=True)
 
     def run(self):
         for audio_file_in in self.audio_files:
-            self.convert2mp3(audio_file_in)
+            self.convert2mp3(audio_file_in, self.qval)
             self.update_progress_bar.emit()
 
 class QPlainTextEditLogger(logging.Handler):
@@ -95,6 +97,7 @@ class App(QWidget):
         self.ncpu = 0
         self.btn_alac = QPushButton('ALAC / FLAC')
         self.btn_mp3 = QPushButton('MP3')
+        self.quality = QSlider(Qt.Horizontal)
         self.btn_start = QPushButton('START')
         self.btn_stop = QPushButton('STOP')
         self.progress = QProgressBar()
@@ -103,6 +106,7 @@ class App(QWidget):
         self.elapsed_time= QLCDNumber()
         self.threads = []
         self.nstart = 0
+        self.qval = 0
         self.timer_cpu = QTimer()
         self.timer_elapsed = QTimer()
         self.start_time = QDateTime.currentDateTime().toPyDateTime()
@@ -172,6 +176,15 @@ class App(QWidget):
         # Progress
         self.progress.setToolTip('Conversion progress')
 
+        # Quality
+        self.quality.setToolTip('Choose between best MP3 quality (0-left) and size (9-right)')
+        self.quality.setMinimum(0)
+        self.quality.setMaximum(9)
+        self.quality.setSingleStep(1)
+        self.quality.setValue(5)
+        self.qval = 5
+        self.quality.valueChanged.connect(self.updateQuality)
+
         #  Layout
         hlayout1 = QHBoxLayout()
         hlayout1.addWidget(combo)
@@ -183,9 +196,12 @@ class App(QWidget):
         vlayout.addWidget(self.elapsed_time)
         vlayout.addWidget(self.lcd_count)
         hlayout2.addLayout(vlayout)
+        hlayout3 = QHBoxLayout()
+        hlayout3.addWidget(self.btn_mp3)
+        hlayout3.addWidget(self.quality)
         layout = QVBoxLayout()
         layout.addWidget(self.btn_alac)
-        layout.addWidget(self.btn_mp3)
+        layout.addLayout(hlayout3)
         layout.addLayout(hlayout1)
         layout.addLayout(hlayout2)
         layout.addWidget(logTextBox.widget)
@@ -264,7 +280,7 @@ class App(QWidget):
             audio[i].append(audio_end[i])
         self.threads = []
         for i in range(len(audio)):
-            self.threads.append(mp3Thread(audio[i], self.alac_flac_location, self.mp3_location))
+            self.threads.append(mp3Thread(audio[i], self.alac_flac_location, self.mp3_location, self.qval))
         self.nstart = 0
         for i in range(len(audio)):
             self.threads[i].update_progress_bar.connect(self.update_progress_bar)
@@ -310,6 +326,9 @@ class App(QWidget):
             m = int((totsec % 3600) // 60)
             sec = int((totsec % 3600) % 60)
             self.elapsed_time.display('%03d:%02d:%02d'%(h, m, sec))
+
+    def updateQuality(self):
+        self.qval = self.quality.value()
 
 
 if __name__ == '__main__':
