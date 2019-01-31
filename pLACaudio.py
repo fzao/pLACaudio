@@ -1,5 +1,6 @@
 """
-A simple tool designed for the conversion of large libraries of lossless audio files (ALAC, FLAC, WAV & AIFF)
+A minimalist tool designed for the simple and fast conversion of large libraries
+ of lossless audio files (ALAC, FLAC, WAV & AIFF)
  to lossy formats (MP3, Ogg Vorbis, AAC & Opus)
 
 pLAC-Audio has an intensive parallel use of FFmpeg for the conversion
@@ -11,9 +12,10 @@ FFmpeg (A complete, cross-platform solution to record, convert and stream audio 
 pLAC-Audio is written in PyQT5 and has been tested on GNU/Linux, macOS X and MS Windows 64 bits
  with FFmpeg 4.1
 
-pLAC-Audio supposes the presence the FFmpeg executable in the PATH environment variable
+pLAC-Audio supposes the presence of the FFmpeg executable in the PATH environment variable
  of your operating system. If not please go to https://www.ffmpeg.org/download.html and
- download
+ download a static version of ffMPEG
+
         _               _____                _ _
        | |        /\   / ____|              | (_)
   _ __ | |       /  \ | |     __ _ _   _  __| |_  ___
@@ -170,6 +172,7 @@ class App(QWidget):
         self.quality = QComboBox()
         self.btn_start = QPushButton('START')
         self.btn_stop = QPushButton('STOP')
+        self.btn_about = QPushButton('About')
         self.progress = QProgressBar()
         self.cpu_percent = QProgressBar()
         self.lcd_count = QLCDNumber()
@@ -208,6 +211,10 @@ class App(QWidget):
         self.btn_stop.setEnabled(False)
         self.btn_stop.setToolTip('Stop conversion')
         self.btn_stop.setIcon(QIcon(QApplication.style().standardIcon(QStyle.SP_MediaStop)))
+
+        # button 'about'
+        self.btn_about.setMaximumWidth(100)
+        self.btn_about.clicked.connect(self.call_info)
 
         # Choosing number of cpu with a ComboBox
         combo = QComboBox()
@@ -273,13 +280,16 @@ class App(QWidget):
         hlayout3.addWidget(self.btn_lossy)
         hlayout3.addWidget(self.format)
         hlayout3.addWidget(combo_qual)
+        hlayout4 = QHBoxLayout()
+        hlayout4.addWidget(self.progress)
+        hlayout4.addWidget(self.btn_about)
         layout = QVBoxLayout()
         layout.addWidget(self.btn_lossless)
         layout.addLayout(hlayout3)
         layout.addLayout(hlayout1)
         layout.addLayout(hlayout2)
         layout.addWidget(logTextBox.widget)
-        layout.addWidget(self.progress)
+        layout.addLayout(hlayout4)
         self.setLayout(layout)
 
         # show window
@@ -302,6 +312,10 @@ class App(QWidget):
         logging.info('to MP3 folder:\n' + self.lossy_location)
         if self.lossy_location != '':
             self.btn_lossy.setToolTip(self.lossy_location)
+
+    @pyqtSlot()
+    def call_info(self):
+        QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio'>pLACaudio v0.1</a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
 
     @pyqtSlot(int)
     def current_index_changed(self, index):
