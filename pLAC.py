@@ -31,12 +31,13 @@ from PyQt5 import sip
 class mp3Thread(QThread):
     update_progress_bar = pyqtSignal()
 
-    def __init__(self, audio_files, alac_flac_location, mp3_location, qvalue):
+    def __init__(self, audio_files, lossless_folder, lossy_location, qvalue, codec):
         QThread.__init__(self)
         self.audio_files = audio_files
-        self.alac_flac_location = alac_flac_location
-        self.mp3_location = mp3_location
+        self.lossless_folder = lossless_folder
+        self.lossy_location = lossy_location
         self.qval = qvalue
+        self.codec = codec
         self.sep = '/'
         self.null = '/dev/null'
         if os.name == 'nt':
@@ -46,38 +47,55 @@ class mp3Thread(QThread):
     def __del__(self):
         self.wait()
 
-    def convert2mp3(self, audio_file_in):
+    def convert2lossy(self, audio_file_in):
         path_audio = os.path.dirname(audio_file_in)
         file_name = os.path.splitext(os.path.basename(audio_file_in))[0]
-        len_indir = len(self.alac_flac_location)
+        len_indir = len(self.lossless_folder)
         path_audio = path_audio[len_indir:]
-        path_audio = self.mp3_location + path_audio
+        path_audio = self.lossy_location + path_audio
         if not os.path.isdir(path_audio):
             try:
                 os.makedirs(path_audio)
             except OSError:
                 # logging.exception('Unable to create the destination folder')
                 pass
-        ext = 'mp3'
-        audio_file = file_name + '.' + ext
-        audio_file_out = path_audio + self.sep + audio_file
-        if self.qval == 1:
-            q = '9'
-        elif self.qval == 2:
-            q = '5'
-        else:
-            q = '0'
-        if not os.path.isfile(audio_file_out):
+        if self.codec == 1:
+            ext = 'mp3'
+            audio_file = file_name + '.' + ext
+            audio_file_out = path_audio + self.sep + audio_file
+            if self.qval == 1:
+                q = '9'
+            elif self.qval == 2:
+                q = '5'
+            else:
+                q = '0'
+            if not os.path.isfile(audio_file_out):
                 subprocess.call('ffmpeg -nostats -loglevel 0 -i '
-                      + '"' + audio_file_in + '"'
-                      + ' -vn -acodec libmp3lame -q:a '+ q + ' -map_metadata 0'
-                      + ' -id3v2_version 3 '
-                      + '"' + audio_file_out + '"' + ' > ' + self.null,
-                            shell=True)
+                          + '"' + audio_file_in + '"'
+                          + ' -vn -acodec libmp3lame -q:a '+ q + ' -map_metadata 0'
+                          + ' -id3v2_version 3 '
+                          + '"' + audio_file_out + '"' + ' > ' + self.null,
+                                shell=True)
+        elif self.codec == 2:
+            ext = 'ogg'
+            audio_file = file_name + '.' + ext
+            audio_file_out = path_audio + self.sep + audio_file
+            if self.qval == 1:
+                q = '0'
+            elif self.qval == 2:
+                q = '5'
+            else:
+                q = '10'
+            if not os.path.isfile(audio_file_out):
+                subprocess.call('ffmpeg -nostats -loglevel 0 -i '
+                                + '"' + audio_file_in + '"'
+                                + ' -vn -q:a ' + q + ' -map_metadata 0 '
+                                + '"' + audio_file_out + '"' + ' > ' + self.null,
+                                shell=True)
 
     def run(self):
         for audio_file_in in self.audio_files:
-            self.convert2mp3(audio_file_in)
+            self.convert2lossy(audio_file_in)
             self.update_progress_bar.emit()
 
 class QPlainTextEditLogger(logging.Handler):
@@ -97,11 +115,12 @@ class App(QWidget):
         self.title = 'pLAC'
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setFixedSize(480, 640)
-        self.alac_flac_location = ''
-        self.mp3_location = ''
+        self.lossless_folder = ''
+        self.lossy_location = ''
         self.ncpu = 0
-        self.btn_alac = QPushButton('ALAC / FLAC / WAV / AIFF')
-        self.btn_mp3 = QPushButton('MP3')
+        self.btn_lossless = QPushButton('ALAC / FLAC / WAV / AIFF')
+        self.btn_lossy = QPushButton('Output')
+        self.format = QComboBox()
         self.quality = QComboBox()
         self.btn_start = QPushButton('START')
         self.btn_stop = QPushButton('STOP')
@@ -112,6 +131,7 @@ class App(QWidget):
         self.threads = []
         self.nstart = 0
         self.qval = 0
+        self.compression = 0
         self.timer_cpu = QTimer()
         self.timer_elapsed = QTimer()
         self.start_time = QDateTime.currentDateTime().toPyDateTime()
@@ -122,24 +142,24 @@ class App(QWidget):
         self.setWindowTitle(self.title)
 
         # button for the folder selection (ALAC)
-        self.btn_alac.setMinimumWidth(300)
-        self.btn_alac.setMinimumHeight(50)
-        self.btn_alac.move(50,10)
-        self.btn_alac.setToolTip('Folder of lossless files to convert')
-        self.btn_alac.clicked.connect(self.on_click_alac)
+        #self.btn_lossless.setMinimumWidth(300)
+        self.btn_lossless.setMinimumHeight(50)
+        self.btn_lossless.move(50,10)
+        self.btn_lossless.setToolTip('Folder of lossless files to convert')
+        self.btn_lossless.clicked.connect(self.on_click_alac)
 
         # button for the folder selection (MP3)
-        self.btn_mp3.setMinimumWidth(300)
-        self.btn_mp3.setMinimumHeight(50)
-        self.btn_mp3.move(50, 60)
-        self.btn_mp3.setToolTip('Destination folder for the lossy files')
-        self.btn_mp3.clicked.connect(self.on_click_mp3)
+        #self.btn_lossy.setMinimumWidth(100)
+        self.btn_lossy.setMinimumHeight(50)
+        self.btn_lossy.move(50, 60)
+        self.btn_lossy.setToolTip('Destination folder for the lossy files')
+        self.btn_lossy.clicked.connect(self.on_click_mp3)
 
         # buttons for starting and stopping
         self.btn_start.setMinimumHeight(100)
         self.btn_start.setToolTip('Start conversion')
         self.btn_start.setIcon(QIcon(QApplication.style().standardIcon(QStyle.SP_MediaPlay)))
-        self.btn_start.clicked.connect(self.call_convert2mp3)
+        self.btn_start.clicked.connect(self.call_convert2lossy)
         self.btn_stop.setMinimumHeight(100)
         self.btn_stop.setEnabled(False)
         self.btn_stop.setToolTip('Stop conversion')
@@ -181,6 +201,12 @@ class App(QWidget):
         # Progress
         self.progress.setToolTip('Conversion progress')
 
+        # Format
+        self.format.setToolTip("Choose the format compression")
+        self.format.addItem('Format')
+        self.format.addItems(['MP3', 'Ogg Vorbis'])
+        self.format.currentIndexChanged['int'].connect(self.current_index_changed_format)
+
         # Quality
         combo_qual = QComboBox()
         combo_qual.setToolTip("Choose the compression quality ('Low' for a small file size only!)")
@@ -200,10 +226,11 @@ class App(QWidget):
         vlayout.addWidget(self.lcd_count)
         hlayout2.addLayout(vlayout)
         hlayout3 = QHBoxLayout()
-        hlayout3.addWidget(self.btn_mp3)
+        hlayout3.addWidget(self.btn_lossy)
+        hlayout3.addWidget(self.format)
         hlayout3.addWidget(combo_qual)
         layout = QVBoxLayout()
-        layout.addWidget(self.btn_alac)
+        layout.addWidget(self.btn_lossless)
         layout.addLayout(hlayout3)
         layout.addLayout(hlayout1)
         layout.addLayout(hlayout2)
@@ -216,21 +243,21 @@ class App(QWidget):
 
     @pyqtSlot()
     def on_click_alac(self):
-        self.alac_flac_location = QFileDialog.getExistingDirectory(self, 'Select Folder')
+        self.lossless_folder = QFileDialog.getExistingDirectory(self, 'Select Folder')
         if os.name == 'nt': # Windows specific
-            self.alac_flac_location = self.alac_flac_location.replace('/', '\\')
-        logging.info('from ALAC folder:\n' + self.alac_flac_location)
-        if self.alac_flac_location != '':
-            self.btn_alac.setToolTip(self.alac_flac_location)
+            self.lossless_folder = self.lossless_folder.replace('/', '\\')
+        logging.info('from ALAC folder:\n' + self.lossless_folder)
+        if self.lossless_folder != '':
+            self.btn_lossless.setToolTip(self.lossless_folder)
 
     @pyqtSlot()
     def on_click_mp3(self):
-        self.mp3_location = QFileDialog.getExistingDirectory(self, 'Select Folder')
+        self.lossy_location = QFileDialog.getExistingDirectory(self, 'Select Folder')
         if os.name == 'nt':  # Windows specific
-            self.mp3_location = self.mp3_location.replace('/', '\\')
-        logging.info('to MP3 folder:\n' + self.mp3_location)
-        if self.mp3_location != '':
-            self.btn_mp3.setToolTip(self.mp3_location)
+            self.lossy_location = self.lossy_location.replace('/', '\\')
+        logging.info('to MP3 folder:\n' + self.lossy_location)
+        if self.lossy_location != '':
+            self.btn_lossy.setToolTip(self.lossy_location)
 
     @pyqtSlot(int)
     def current_index_changed(self, index):
@@ -242,14 +269,19 @@ class App(QWidget):
         self.qval = index
         logging.info('Quality is set to:\n' + str(self.qval))
 
+    @pyqtSlot(int)
+    def current_index_changed_format(self, index):
+        self.compression = index
+        logging.info('Format is:\n' + str(self.compression))
+
     @pyqtSlot()
-    def call_convert2mp3(self):
+    def call_convert2lossy(self):
         # check the folders
-        if not os.path.isdir(self.alac_flac_location):
+        if not os.path.isdir(self.lossless_folder):
             logging.error('ALAC folder is not correctly set!')
             QMessageBox.warning(self, 'Warning', 'Folder of lossless files is not correctly set')
             return
-        if not os.path.isdir(self.mp3_location):
+        if not os.path.isdir(self.lossy_location):
             logging.error('MP3 folder is not correctly set!')
             QMessageBox.warning(self, 'Warning', 'Folder of lossy files is not correctly set')
             return
@@ -267,15 +299,15 @@ class App(QWidget):
         self.start_time = QDateTime().currentDateTime().toPyDateTime()
         # get the list of all files to convert
         ext = 'm4a'
-        audio_alac = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
+        audio_alac = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
         ext = 'flac'
-        audio_flac = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
+        audio_flac = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
         ext = 'wav'
-        audio_wav = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
+        audio_wav = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
         ext = 'aif'
-        audio_aiff1 = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
+        audio_aiff1 = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
         ext = 'aiff'
-        audio_aiff2 = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
+        audio_aiff2 = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
         audio_aiff = audio_aiff1 + audio_aiff2
         audio_files = audio_alac + audio_flac + audio_wav + audio_aiff
         # Number of files found
@@ -304,7 +336,7 @@ class App(QWidget):
             audio[i].append(audio_end[i])
         self.threads = []
         for i in range(len(audio)):
-            self.threads.append(mp3Thread(audio[i], self.alac_flac_location, self.mp3_location, self.qval))
+            self.threads.append(mp3Thread(audio[i], self.lossless_folder, self.lossy_location, self.qval, self.compression))
         self.nstart = 0
         for i in range(len(audio)):
             self.threads[i].update_progress_bar.connect(self.update_progress_bar)
@@ -322,7 +354,7 @@ class App(QWidget):
             self.btn_stop.setEnabled(False)
             self.btn_start.setEnabled(True)
             logging.info('Done!')
-            QMessageBox.information(self, "Done!", "MP3 conversion done!")
+            QMessageBox.information(self, "Done!", "Lossy conversion done!")
             self.progress.setValue(0)
             self.lcd_count.display(0)
             self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
