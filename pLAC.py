@@ -46,7 +46,7 @@ class mp3Thread(QThread):
     def __del__(self):
         self.wait()
 
-    def convert2mp3(self, audio_file_in, qval):
+    def convert2mp3(self, audio_file_in):
         path_audio = os.path.dirname(audio_file_in)
         file_name = os.path.splitext(os.path.basename(audio_file_in))[0]
         len_indir = len(self.alac_flac_location)
@@ -62,22 +62,22 @@ class mp3Thread(QThread):
         audio_file = file_name + '.' + ext
         audio_file_out = path_audio + self.sep + audio_file
         if self.qval == 1:
-            qval = '9'
+            q = '9'
         elif self.qval == 2:
-            qval = '5'
+            q = '5'
         else:
-            qval = '0'
+            q = '0'
         if not os.path.isfile(audio_file_out):
                 subprocess.call('ffmpeg -nostats -loglevel 0 -i '
                       + '"' + audio_file_in + '"'
-                      + ' -vn -acodec libmp3lame -q:a '+ qval + ' -map_metadata 0'
+                      + ' -vn -acodec libmp3lame -q:a '+ q + ' -map_metadata 0'
                       + ' -id3v2_version 3 '
                       + '"' + audio_file_out + '"' + ' > ' + self.null,
                             shell=True)
 
     def run(self):
         for audio_file_in in self.audio_files:
-            self.convert2mp3(audio_file_in, self.qval)
+            self.convert2mp3(audio_file_in)
             self.update_progress_bar.emit()
 
 class QPlainTextEditLogger(logging.Handler):
