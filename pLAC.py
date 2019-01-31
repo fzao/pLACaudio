@@ -95,7 +95,7 @@ class App(QWidget):
         self.alac_flac_location = ''
         self.mp3_location = ''
         self.ncpu = 0
-        self.btn_alac = QPushButton('ALAC / FLAC')
+        self.btn_alac = QPushButton('ALAC / FLAC / WAV')
         self.btn_mp3 = QPushButton('MP3')
         self.quality = QSlider(Qt.Horizontal)
         self.btn_start = QPushButton('START')
@@ -120,14 +120,14 @@ class App(QWidget):
         self.btn_alac.setMinimumWidth(300)
         self.btn_alac.setMinimumHeight(50)
         self.btn_alac.move(50,10)
-        self.btn_alac.setToolTip('ALAC or FLAC files to convert')
+        self.btn_alac.setToolTip('Folder of lossless files to convert')
         self.btn_alac.clicked.connect(self.on_click_alac)
 
         # button for the folder selection (MP3)
         self.btn_mp3.setMinimumWidth(300)
         self.btn_mp3.setMinimumHeight(50)
         self.btn_mp3.move(50, 60)
-        self.btn_mp3.setToolTip('MP3 destination folder')
+        self.btn_mp3.setToolTip('Destination folder for the lossy files')
         self.btn_mp3.clicked.connect(self.on_click_mp3)
 
         # buttons for starting and stopping
@@ -239,11 +239,11 @@ class App(QWidget):
         # check the folders
         if not os.path.isdir(self.alac_flac_location):
             logging.error('ALAC folder is not correctly set!')
-            QMessageBox.warning(self, 'Warning', 'ALAC/FLAC folder is not correctly set!')
+            QMessageBox.warning(self, 'Warning', 'Folder of lossless files is not correctly set!')
             return
         if not os.path.isdir(self.mp3_location):
             logging.error('MP3 folder is not correctly set!')
-            QMessageBox.warning(self, 'Warning', 'MP3 folder is not correctly set!')
+            QMessageBox.warning(self, 'Warning', 'Folder of lossy files is not correctly set!')
             return
         # check the CPUs
         if self.ncpu < 1:
@@ -257,14 +257,19 @@ class App(QWidget):
         audio_alac = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
         ext = 'flac'
         audio_flac = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
-        audio_files = audio_alac + audio_flac
+        ext = 'wav'
+        audio_wav = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
+        audio_files = audio_alac + audio_flac + audio_wav
         # Number of files found
         if len(audio_files) == 0:
             logging.error('No files found!')
-            QMessageBox.warning(self, 'Warning', 'No ALAC or FLAC files found!')
+            QMessageBox.warning(self, 'Warning', 'No lossless files found!')
             return
         else:
-            logging.info('Number of files:\n' + str(len(audio_files)))
+            logging.info('Number of ALAC files:\n' + str(len(audio_alac)))
+            logging.info('Number of FLAC files:\n' + str(len(audio_flac)))
+            logging.info('Number of WAV files:\n' + str(len(audio_wav)))
+            logging.info('Total number of files:\n' + str(len(audio_files)))
         self.progress.setMinimum(0)
         self.progress.setMaximum(len(audio_files) - 1)
         self.progress.setValue(0)
