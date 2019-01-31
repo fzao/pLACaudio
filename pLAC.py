@@ -89,7 +89,7 @@ class mp3Thread(QThread):
             if not os.path.isfile(audio_file_out):
                 subprocess.call('ffmpeg -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -q:a ' + q + ' -map_metadata 0 '
+                                + ' -vn -acodec libvorbis -q:a ' + q + ' -map_metadata 0 '
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
 
