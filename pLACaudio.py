@@ -1,17 +1,31 @@
 """
-parallel conversion of a large library of lossless audio files (ALAC & FLAC) to lossy MP3
+A simple tool designed for the conversion of large libraries of lossless audio files (ALAC, FLAC, WAV & AIFF)
+ to lossy formats (MP3, Ogg Vorbis, AAC & Opus)
 
- ________  ___       ________  ________
-|\   __  \|\  \     |\   __  \|\   ____\
-\ \  \|\  \ \  \    \ \  \|\  \ \  \___|
- \ \   ____\ \  \    \ \   __  \ \  \
-  \ \  \___|\ \  \____\ \  \ \  \ \  \____
-   \ \__\    \ \_______\ \__\ \__\ \_______\
-    \|__|     \|_______|\|__|\|__|\|_______|
+pLAC-Audio has an intensive parallel use of FFmpeg for the conversion
 
-Copyright (c) Fabrice Zaoui
+FFmpeg (A complete, cross-platform solution to record, convert and stream audio and video)
+ is free software and distributed under the terms of the GNU General Public License v3
+ see https://www.ffmpeg.org/ for more information
 
-Licence GNU GPL v3
+pLAC-Audio is written in PyQT5 and has been tested on GNU/Linux, macOS X and MS Windows 64 bits
+ with FFmpeg 4.1
+
+pLAC-Audio supposes the presence the FFmpeg executable in the PATH environment variable
+ of your operating system. If not please go to https://www.ffmpeg.org/download.html and
+ download
+        _               _____                _ _
+       | |        /\   / ____|              | (_)
+  _ __ | |       /  \ | |     __ _ _   _  __| |_  ___
+ | '_ \| |      / /\ \| |    / _` | | | |/ _` | |/ _ \
+ | |_) | |____ / ____ \ |___| (_| | |_| | (_| | | (_) |
+ | .__/|______/_/    \_\_____\__,_|\__,_|\__,_|_|\___/
+ | |
+ |_|
+
+Copyright (c) 2019 Fabrice Zaoui
+
+License GNU GPL v3
 
 """
 
@@ -144,7 +158,7 @@ class QPlainTextEditLogger(logging.Handler):
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        self.title = 'pLAC'
+        self.title = 'pLACaudio'
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setFixedSize(480, 640)
         self.lossless_folder = ''
@@ -174,14 +188,12 @@ class App(QWidget):
         self.setWindowTitle(self.title)
 
         # button for the folder selection (ALAC)
-        #self.btn_lossless.setMinimumWidth(300)
         self.btn_lossless.setMinimumHeight(50)
         self.btn_lossless.move(50,10)
         self.btn_lossless.setToolTip('Folder of lossless files to convert')
         self.btn_lossless.clicked.connect(self.on_click_alac)
 
         # button for the folder selection (MP3)
-        #self.btn_lossy.setMinimumWidth(100)
         self.btn_lossy.setMinimumHeight(50)
         self.btn_lossy.move(50, 60)
         self.btn_lossy.setToolTip('Destination folder for the lossy files')
