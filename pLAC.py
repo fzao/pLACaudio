@@ -61,7 +61,12 @@ class mp3Thread(QThread):
         ext = 'mp3'
         audio_file = file_name + '.' + ext
         audio_file_out = path_audio + self.sep + audio_file
-        qval = str(self.qval)
+        if self.qval == 1:
+            qval = '9'
+        elif self.qval == 2:
+            qval = '5'
+        else:
+            qval = '0'
         if not os.path.isfile(audio_file_out):
                 subprocess.call('ffmpeg -nostats -loglevel 0 -i '
                       + '"' + audio_file_in + '"'
@@ -97,7 +102,7 @@ class App(QWidget):
         self.ncpu = 0
         self.btn_alac = QPushButton('ALAC / FLAC / WAV / AIFF')
         self.btn_mp3 = QPushButton('MP3')
-        self.quality = QSlider(Qt.Horizontal)
+        self.quality = QComboBox()
         self.btn_start = QPushButton('START')
         self.btn_stop = QPushButton('STOP')
         self.progress = QProgressBar()
@@ -177,13 +182,11 @@ class App(QWidget):
         self.progress.setToolTip('Conversion progress')
 
         # Quality
-        self.quality.setToolTip('Choose between best MP3 quality (0-left) and size (9-right)')
-        self.quality.setMinimum(0)
-        self.quality.setMaximum(9)
-        self.quality.setSingleStep(1)
-        self.quality.setValue(5)
-        self.qval = 5
-        self.quality.valueChanged.connect(self.updateQuality)
+        combo_qual = QComboBox()
+        combo_qual.setToolTip("Choose the compression quality ('Low' for a small file size only!)")
+        combo_qual.addItem('Quality')
+        combo_qual.addItems(['Low', 'Medium', 'High'])
+        combo_qual.currentIndexChanged['int'].connect(self.current_index_changed_qual)
 
         #  Layout
         hlayout1 = QHBoxLayout()
@@ -198,7 +201,7 @@ class App(QWidget):
         hlayout2.addLayout(vlayout)
         hlayout3 = QHBoxLayout()
         hlayout3.addWidget(self.btn_mp3)
-        hlayout3.addWidget(self.quality)
+        hlayout3.addWidget(combo_qual)
         layout = QVBoxLayout()
         layout.addWidget(self.btn_alac)
         layout.addLayout(hlayout3)
@@ -234,21 +237,31 @@ class App(QWidget):
         self.ncpu = index
         logging.info('Number of CPUs:\n' + str(self.ncpu))
 
+    @pyqtSlot(int)
+    def current_index_changed_qual(self, index):
+        self.qval = index
+        logging.info('Quality is set to:\n' + str(self.qval))
+
     @pyqtSlot()
     def call_convert2mp3(self):
         # check the folders
         if not os.path.isdir(self.alac_flac_location):
             logging.error('ALAC folder is not correctly set!')
-            QMessageBox.warning(self, 'Warning', 'Folder of lossless files is not correctly set!')
+            QMessageBox.warning(self, 'Warning', 'Folder of lossless files is not correctly set')
             return
         if not os.path.isdir(self.mp3_location):
             logging.error('MP3 folder is not correctly set!')
-            QMessageBox.warning(self, 'Warning', 'Folder of lossy files is not correctly set!')
+            QMessageBox.warning(self, 'Warning', 'Folder of lossy files is not correctly set')
             return
         # check the CPUs
         if self.ncpu < 1:
             logging.error('The number of CPUs is not defined!')
-            QMessageBox.warning(self, 'Warning', 'The number of CPUs is not defined!')
+            QMessageBox.warning(self, 'Warning', 'The number of CPUs is not defined')
+            return
+        # check the Quality
+        if self.qval < 1:
+            logging.error('The quality compression is not chosen!')
+            QMessageBox.warning(self, 'Warning', 'Choose the quality compression')
             return
         # start time
         self.start_time = QDateTime().currentDateTime().toPyDateTime()
@@ -337,9 +350,6 @@ class App(QWidget):
             m = int((totsec % 3600) // 60)
             sec = int((totsec % 3600) % 60)
             self.elapsed_time.display('%03d:%02d:%02d'%(h, m, sec))
-
-    def updateQuality(self):
-        self.qval = self.quality.value()
 
 
 if __name__ == '__main__':
