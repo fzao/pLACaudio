@@ -92,6 +92,22 @@ class mp3Thread(QThread):
                                 + ' -vn -acodec libvorbis -q:a ' + q + ' -map_metadata 0 '
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
+        elif self.codec == 3:
+            ext = 'm4a'
+            audio_file = file_name + '.' + ext
+            audio_file_out = path_audio + self.sep + audio_file
+            if self.qval == 1:
+                q = '64k'
+            elif self.qval == 2:
+                q = '160k'
+            else:
+                q = '500k'
+            if not os.path.isfile(audio_file_out):
+                subprocess.call('ffmpeg -nostats -loglevel 0 -i '
+                                + '"' + audio_file_in + '"'
+                                + ' -vn -acodec aac -b:a ' + q + ' -map_metadata 0 '
+                                + '"' + audio_file_out + '"' + ' > ' + self.null,
+                                shell=True)
 
     def run(self):
         for audio_file_in in self.audio_files:
@@ -204,7 +220,7 @@ class App(QWidget):
         # Format
         self.format.setToolTip("Choose the format compression")
         self.format.addItem('Format')
-        self.format.addItems(['MP3', 'Ogg Vorbis'])
+        self.format.addItems(['MP3', 'Ogg Vorbis', 'AAC'])
         self.format.currentIndexChanged['int'].connect(self.current_index_changed_format)
 
         # Quality
