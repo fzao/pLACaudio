@@ -95,7 +95,7 @@ class App(QWidget):
         self.alac_flac_location = ''
         self.mp3_location = ''
         self.ncpu = 0
-        self.btn_alac = QPushButton('ALAC / FLAC / WAV')
+        self.btn_alac = QPushButton('ALAC / FLAC / WAV / AIFF')
         self.btn_mp3 = QPushButton('MP3')
         self.quality = QSlider(Qt.Horizontal)
         self.btn_start = QPushButton('START')
@@ -259,7 +259,12 @@ class App(QWidget):
         audio_flac = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
         ext = 'wav'
         audio_wav = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
-        audio_files = audio_alac + audio_flac + audio_wav
+        ext = 'aif'
+        audio_aiff1 = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
+        ext = 'aiff'
+        audio_aiff2 = glob.glob(self.alac_flac_location + '/**/*.' + ext, recursive=True)
+        audio_aiff = audio_aiff1 + audio_aiff2
+        audio_files = audio_alac + audio_flac + audio_wav + audio_aiff
         # Number of files found
         if len(audio_files) == 0:
             logging.error('No files found!')
@@ -269,6 +274,7 @@ class App(QWidget):
             logging.info('Number of ALAC files:\n' + str(len(audio_alac)))
             logging.info('Number of FLAC files:\n' + str(len(audio_flac)))
             logging.info('Number of WAV files:\n' + str(len(audio_wav)))
+            logging.info('Number of AIFF files:\n' + str(len(audio_aiff)))
             logging.info('Total number of files:\n' + str(len(audio_files)))
         self.progress.setMinimum(0)
         self.progress.setMaximum(len(audio_files) - 1)
