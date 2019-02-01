@@ -15,7 +15,7 @@ Output lossy formats are either:
 
 pLACaudio runs on a number of cores chosen by the user for a fast conversion of a potentially large library.
 
-pLACaudio uses ffMPEG (A complete, cross-platform solution to record, convert and stream audio and video) is a free software and distributed under the terms of the GNU General Public License v3 see https://www.ffmpeg.org/ for more informatio).
+pLACaudio uses ffMPEG (A complete, cross-platform solution to record, convert and stream audio and video) is a free software and distributed under the terms of the GNU General Public License v3 see https://www.ffmpeg.org/ for more information).
 
 Three settings of the output quality audio are possible.
 
