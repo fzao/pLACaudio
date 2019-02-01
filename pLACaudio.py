@@ -1,12 +1,12 @@
 """
-A minimalist tool designed for the simple and fast conversion of large libraries
+A minimalist tool designed for a simple and fast conversion of large libraries
  of lossless audio files (ALAC, FLAC, WAV & AIFF)
- to lossy formats (MP3, Ogg Vorbis, AAC & Opus)
+ to lossy formats (MP3, Ogg Vorbis & Opus)
 
 pLAC-Audio has an intensive parallel use of FFmpeg for the conversion
 
 FFmpeg (A complete, cross-platform solution to record, convert and stream audio and video)
- is free software and distributed under the terms of the GNU General Public License v3
+ is a free software and distributed under the terms of the GNU General Public License v3
  see https://www.ffmpeg.org/ for more information
 
 pLAC-Audio is written in PyQT5 and has been tested on GNU/Linux, macOS X and MS Windows 64 bits
@@ -109,22 +109,6 @@ class mp3Thread(QThread):
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 3:
-            ext = 'm4a'
-            audio_file = file_name + '.' + ext
-            audio_file_out = path_audio + self.sep + audio_file
-            if self.qval == 1:
-                q = '64k'
-            elif self.qval == 2:
-                q = '160k'
-            else:
-                q = '500k'
-            if not os.path.isfile(audio_file_out):
-                subprocess.call('ffmpeg -nostats -loglevel 0 -i '
-                                + '"' + audio_file_in + '"'
-                                + ' -vn -acodec aac -b:a ' + q + ' -map_metadata 0 '
-                                + '"' + audio_file_out + '"' + ' > ' + self.null,
-                                shell=True)
-        elif self.codec == 4:
             ext = 'opus'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
@@ -255,7 +239,7 @@ class App(QWidget):
         # Format
         self.format.setToolTip("Choose the format compression")
         self.format.addItem('Format')
-        self.format.addItems(['MP3', 'Ogg Vorbis', 'AAC', 'Opus'])
+        self.format.addItems(['MP3', 'Ogg Vorbis', 'Opus'])
         self.format.currentIndexChanged['int'].connect(self.current_index_changed_format)
 
         # Quality
@@ -336,11 +320,11 @@ class App(QWidget):
     def call_convert2lossy(self):
         # check the folders
         if not os.path.isdir(self.lossless_folder):
-            logging.error('ALAC folder is not correctly set!')
+            logging.error('Lossless folder is not correctly set!')
             QMessageBox.warning(self, 'Warning', 'Folder of lossless files is not correctly set')
             return
         if not os.path.isdir(self.lossy_location):
-            logging.error('MP3 folder is not correctly set!')
+            logging.error('Lossy folder is not correctly set!')
             QMessageBox.warning(self, 'Warning', 'Folder of lossy files is not correctly set')
             return
         # check the CPUs
