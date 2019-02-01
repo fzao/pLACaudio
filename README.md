@@ -39,7 +39,7 @@ Use
 An executable version is provided for Windows 64 bits. See the Release section.
 
 For the use with CLI:
-`>python 3 pLACaudio.py`
+`>python3 pLACaudio.py`
 and make sure that `ffmpeg` is a known executable of your operating system.
 
 
