@@ -46,7 +46,7 @@ and make sure that `ffmpeg` is a known executable of your operating system.
 License
 =======
 
-This package is provided under the GNU GPL license v3
+This software is provided under the GNU GPL license v3
 
 Contributions
 =============
