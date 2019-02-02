@@ -24,7 +24,10 @@ Three settings of the output quality audio are possible.
   <img src="./img/Windows_linux.png" width="200"/>
 </p>
 <p align="center">
-   <b>pLACaudio on Windows 10 and GNU/Linux</b>
+  <img src="./img/Windows_macOS.png" width="250"/>
+</p>
+<p align="center">
+   <b>pLACaudio on Windows 10, GNU/Linux and macOS</b>
 </p>
 
 Requirements
@@ -36,7 +39,7 @@ Requirements
 Use
 ===
 
-An executable version is provided for Windows 64 bits. See the Release section.
+An executable version is provided for Windows 64 bits (setup installer with ffMPEG included). See the Release section.
 
 For the use with CLI:
 `>python3 pLACaudio.py`
@@ -51,8 +54,7 @@ This software is provided under the GNU GPL license v3
 Contributions
 =============
 
-Contributions are always welcome.
+Contributions are welcome.
 
 When contributing to please consider discussing the changes you wish to make via issue.
 
-Enjoy ;-)
