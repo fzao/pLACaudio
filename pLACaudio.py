@@ -85,8 +85,8 @@ class mp3Thread(QThread):
         path_audio = path_audio[len_indir:]
         path_audio = self.lossy_location + path_audio
         ffmpeg = 'ffmpeg'
-        if sys.platform == 'darwin':
-            ffmpeg = '/Applications/pLACaudio.app/Contents/MacOS/ffmpeg'
+        # if sys.platform == 'darwin':
+        #    ffmpeg = '/Applications/pLACaudio.app/Contents/MacOS/ffmpeg'
         if not os.path.isdir(path_audio):
             try:
                 os.makedirs(path_audio)
