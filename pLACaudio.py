@@ -284,7 +284,7 @@ class App(QWidget):
         self.lossless_folder = QFileDialog.getExistingDirectory(self, 'Select Folder')
         if os.name == 'nt': # Windows specific
             self.lossless_folder = self.lossless_folder.replace('/', '\\')
-        logging.info('from ALAC folder:\n' + self.lossless_folder)
+        logging.info('from folder:\n' + self.lossless_folder)
         if self.lossless_folder != '':
             self.btn_lossless.setToolTip(self.lossless_folder)
 
@@ -293,7 +293,7 @@ class App(QWidget):
         self.lossy_location = QFileDialog.getExistingDirectory(self, 'Select Folder')
         if os.name == 'nt':  # Windows specific
             self.lossy_location = self.lossy_location.replace('/', '\\')
-        logging.info('to MP3 folder:\n' + self.lossy_location)
+        logging.info('to folder:\n' + self.lossy_location)
         if self.lossy_location != '':
             self.btn_lossy.setToolTip(self.lossy_location)
 
