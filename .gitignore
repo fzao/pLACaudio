@@ -6,4 +6,6 @@ dist
 .gitignore.swp
 pLAC.spec
 misc
+samples
+.DS_Store
 
