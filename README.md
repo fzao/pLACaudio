@@ -13,7 +13,7 @@ Output lossy formats are either:
 - [Ogg Vorbis](https://xiph.org/vorbis/)
 - [Opus](http://opus-codec.org/)
 
-pLACaudio runs on a number of cores chosen by the user for a fast conversion of a potentially large library.
+pLACaudio runs on a number of cores (conversion in parallel mode) chosen by the user for a fast conversion of a potentially large library.
 
 pLACaudio uses ffMPEG (A complete, cross-platform solution to record, convert and stream audio and video). ffMPEG is a free software and is distributed under the terms of the GNU General Public License v3 see https://www.ffmpeg.org/ for more information).
 
