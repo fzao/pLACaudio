@@ -1,7 +1,7 @@
 """
 A minimalist tool designed for a simple and fast conversion of large libraries
  of lossless audio files (ALAC, FLAC, WAV & AIFF)
- to lossy formats (MP3, Ogg Vorbis & Opus)
+ to lossy formats (MP3, AAC, Ogg Vorbis & Opus)
 
 pLAC-Audio has an intensive parallel use of FFmpeg for the conversion
 
@@ -111,6 +111,22 @@ class mp3Thread(QThread):
                           + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 2:
+            ext = 'm4a'
+            audio_file = file_name + '.' + ext
+            audio_file_out = path_audio + self.sep + audio_file
+            if self.qval == 1:
+                q = '64k'
+            elif self.qval == 2:
+                q = '128k'
+            else:
+                q = '256k'
+            if not os.path.isfile(audio_file_out):
+                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
+                                + '"' + audio_file_in + '"'
+                                + ' -vn -acodec aac -b:a ' + q + ' -map_metadata 0 '
+                                + '"' + audio_file_out + '"' + ' > ' + self.null,
+                                shell=True)
+        elif self.codec == 3:
             ext = 'ogg'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
@@ -126,7 +142,7 @@ class mp3Thread(QThread):
                                 + ' -vn -acodec libvorbis -q:a ' + q + ' -map_metadata 0 '
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
-        elif self.codec == 3:
+        elif self.codec == 4:
             ext = 'opus'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
@@ -147,6 +163,7 @@ class mp3Thread(QThread):
         for audio_file_in in self.audio_files:
             self.convert2lossy(audio_file_in)
             self.update_progress_bar.emit()
+
 
 class QPlainTextEditLogger(logging.Handler):
     def __init__(self, parent):
@@ -178,7 +195,7 @@ class App(QWidget):
         self.progress = QProgressBar()
         self.cpu_percent = QProgressBar()
         self.lcd_count = QLCDNumber()
-        self.elapsed_time= QLCDNumber()
+        self.elapsed_time = QLCDNumber()
         self.threads = []
         self.nstart = 0
         self.qval = 0
@@ -194,7 +211,7 @@ class App(QWidget):
 
         # button for the folder selection (ALAC)
         self.btn_lossless.setMinimumHeight(50)
-        self.btn_lossless.move(50,10)
+        self.btn_lossless.move(50, 10)
         self.btn_lossless.setToolTip('Folder of lossless files to convert')
         self.btn_lossless.clicked.connect(self.on_click_alac)
 
@@ -257,7 +274,7 @@ class App(QWidget):
         # Format
         self.format.setToolTip("Choose the format compression")
         self.format.addItem('Format')
-        self.format.addItems(['MP3', 'Ogg Vorbis', 'Opus'])
+        self.format.addItems(['MP3', 'AAC', 'Ogg Vorbis', 'Opus'])
         self.format.currentIndexChanged['int'].connect(self.current_index_changed_format)
 
         # Quality
@@ -300,7 +317,7 @@ class App(QWidget):
     @pyqtSlot()
     def on_click_alac(self):
         self.lossless_folder = QFileDialog.getExistingDirectory(self, 'Select Folder')
-        if os.name == 'nt': # Windows specific
+        if os.name == 'nt':  # Windows specific
             self.lossless_folder = self.lossless_folder.replace('/', '\\')
         logging.info('from folder:\n' + self.lossless_folder)
         if self.lossless_folder != '':
@@ -441,7 +458,7 @@ class App(QWidget):
             h = int(totsec // 3600)
             m = int((totsec % 3600) // 60)
             sec = int((totsec % 3600) % 60)
-            self.elapsed_time.display('%03d:%02d:%02d'%(h, m, sec))
+            self.elapsed_time.display('%03d:%02d:%02d' % (h, m, sec))
 
 
 if __name__ == '__main__':
