@@ -1,6 +1,6 @@
 """
 A minimalist tool designed for a simple and fast conversion of large libraries
- of lossless audio files (ALAC, FLAC, WAV & AIFF)
+ of lossless audio files (ALAC, FLAC, DSF, WAV & AIFF)
  to lossy formats (MP3, AAC, Ogg Vorbis & Opus)
 
 pLAC-Audio has an intensive parallel use of FFmpeg for the conversion
@@ -185,7 +185,7 @@ class App(QWidget):
         self.lossless_folder = ''
         self.lossy_location = ''
         self.ncpu = 0
-        self.btn_lossless = QPushButton('ALAC / FLAC / WAV / AIFF')
+        self.btn_lossless = QPushButton('ALAC / FLAC / DSF / WAV / AIFF')
         self.btn_lossy = QPushButton('Output')
         self.format = QComboBox()
         self.quality = QComboBox()
@@ -334,7 +334,7 @@ class App(QWidget):
 
     @pyqtSlot()
     def call_info(self):
-        QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio'>pLACaudio v0.1</a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
+        QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio'>pLACaudio v0.2 beta</a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
 
     @pyqtSlot(int)
     def current_index_changed(self, index):
@@ -379,6 +379,8 @@ class App(QWidget):
         audio_alac = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
         ext = 'flac'
         audio_flac = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
+        ext = 'dsf'
+        audio_dsf = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
         ext = 'wav'
         audio_wav = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
         ext = 'aif'
@@ -386,7 +388,7 @@ class App(QWidget):
         ext = 'aiff'
         audio_aiff2 = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
         audio_aiff = audio_aiff1 + audio_aiff2
-        audio_files = audio_alac + audio_flac + audio_wav + audio_aiff
+        audio_files = audio_alac + audio_flac + audio_dsf + audio_wav + audio_aiff
         # Number of files found
         if len(audio_files) == 0:
             logging.error('No files found!')
@@ -395,6 +397,7 @@ class App(QWidget):
         else:
             logging.info('Number of ALAC files:\n' + str(len(audio_alac)))
             logging.info('Number of FLAC files:\n' + str(len(audio_flac)))
+            logging.info('Number of DSF files:\n' + str(len(audio_dsf)))
             logging.info('Number of WAV files:\n' + str(len(audio_wav)))
             logging.info('Number of AIFF files:\n' + str(len(audio_aiff)))
             logging.info('Total number of files:\n' + str(len(audio_files)))
