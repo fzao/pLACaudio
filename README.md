@@ -39,7 +39,9 @@ Requirements
 Use
 ===
 
-An executable version is provided for Windows 64 bits (setup installer with ffMPEG included). See the Release section.
+An executable version is provided for:
+- Windows 64 bits (setup installer with ffMPEG included). See the Release section.
+- macOS (dmg disk with ffMPEG included). See the Release section.
 
 For the use with CLI:
 `>python3 pLACaudio.py`
