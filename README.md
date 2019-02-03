@@ -58,5 +58,5 @@ Contributions
 
 Contributions are welcome.
 
-When contributing to pLACaudio please consider discussing the changes you wish to make via issue.
+When contributing to **pLACaudio** please consider discussing the changes you wish to make via issue.
 
