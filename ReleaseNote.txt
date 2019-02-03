@@ -1,0 +1,7 @@
+-----------
+VERSION 0.1 (February 01 2019)
+-----------
+- first release
+- input formats: ALAC / FLAC / WAV / aiff
+- output formats: MP3 / Ogg Vorbis / opus
+- ffmpeg 4.1
