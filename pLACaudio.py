@@ -84,6 +84,9 @@ class mp3Thread(QThread):
         len_indir = len(self.lossless_folder)
         path_audio = path_audio[len_indir:]
         path_audio = self.lossy_location + path_audio
+        ffmpeg = 'ffmpeg'
+        if sys.platform == 'darwin':
+            ffmpeg = '/Applications/pLACaudio.app/Contents/MacOS/ffmpeg'
         if not os.path.isdir(path_audio):
             try:
                 os.makedirs(path_audio)
@@ -101,7 +104,7 @@ class mp3Thread(QThread):
             else:
                 q = '0'
             if not os.path.isfile(audio_file_out):
-                subprocess.call('ffmpeg -nostats -loglevel 0 -i '
+                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                           + '"' + audio_file_in + '"'
                           + ' -vn -acodec libmp3lame -q:a '+ q + ' -map_metadata 0'
                           + ' -id3v2_version 3 '
@@ -118,7 +121,7 @@ class mp3Thread(QThread):
             else:
                 q = '10'
             if not os.path.isfile(audio_file_out):
-                subprocess.call('ffmpeg -nostats -loglevel 0 -i '
+                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
                                 + ' -vn -acodec libvorbis -q:a ' + q + ' -map_metadata 0 '
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
@@ -134,7 +137,7 @@ class mp3Thread(QThread):
             else:
                 q = '128k'
             if not os.path.isfile(audio_file_out):
-                subprocess.call('ffmpeg -nostats -loglevel 0 -i '
+                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
                                 + ' -vn -acodec libopus -b:a ' + q + ' -map_metadata 0 '
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
