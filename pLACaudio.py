@@ -47,133 +47,17 @@ License GNU GPL v3
 """
 
 import os
-import subprocess
 import sys
-import logging
 import glob
 import multiprocessing as mp
 import psutil
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QPlainTextEdit, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
-from PyQt5.QtCore import pyqtSlot, QThread, pyqtSignal, QTimer, QDateTime, Qt
+import logging
+from mp3Thread import mp3Thread
+from pLogger import pLogger
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
+from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime
 from PyQt5.QtGui import QIcon
 from PyQt5 import sip
-
-
-class mp3Thread(QThread):
-    update_progress_bar = pyqtSignal()
-
-    def __init__(self, audio_files, lossless_folder, lossy_location, qvalue, codec):
-        QThread.__init__(self)
-        self.audio_files = audio_files
-        self.lossless_folder = lossless_folder
-        self.lossy_location = lossy_location
-        self.qval = qvalue
-        self.codec = codec
-        self.sep = '/'
-        self.null = '/dev/null'
-        if os.name == 'nt':
-            self.sep = '\\'
-            self.null = 'NUL'
-
-    def __del__(self):
-        self.wait()
-
-    def convert2lossy(self, audio_file_in):
-        path_audio = os.path.dirname(audio_file_in)
-        file_name = os.path.splitext(os.path.basename(audio_file_in))[0]
-        len_indir = len(self.lossless_folder)
-        path_audio = path_audio[len_indir:]
-        path_audio = self.lossy_location + path_audio
-        ffmpeg = 'ffmpeg'
-        # if sys.platform == 'darwin':
-        #    ffmpeg = '/Applications/pLACaudio.app/Contents/MacOS/ffmpeg'
-        if not os.path.isdir(path_audio):
-            try:
-                os.makedirs(path_audio)
-            except OSError:
-                # logging.exception('Unable to create the destination folder')
-                pass
-        if self.codec == 1:
-            ext = 'mp3'
-            audio_file = file_name + '.' + ext
-            audio_file_out = path_audio + self.sep + audio_file
-            if self.qval == 1:
-                q = '9'
-            elif self.qval == 2:
-                q = '5'
-            else:
-                q = '0'
-            if not os.path.isfile(audio_file_out):
-                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
-                          + '"' + audio_file_in + '"'
-                          + ' -vn -acodec libmp3lame -q:a '+ q + ' -map_metadata 0'
-                          + ' -id3v2_version 3 '
-                          + '"' + audio_file_out + '"' + ' > ' + self.null,
-                                shell=True)
-        elif self.codec == 2:
-            ext = 'm4a'
-            audio_file = file_name + '.' + ext
-            audio_file_out = path_audio + self.sep + audio_file
-            if self.qval == 1:
-                q = '64k'
-            elif self.qval == 2:
-                q = '128k'
-            else:
-                q = '256k'
-            if not os.path.isfile(audio_file_out):
-                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
-                                + '"' + audio_file_in + '"'
-                                + ' -vn -acodec aac -b:a ' + q + ' -map_metadata 0 '
-                                + '"' + audio_file_out + '"' + ' > ' + self.null,
-                                shell=True)
-        elif self.codec == 3:
-            ext = 'ogg'
-            audio_file = file_name + '.' + ext
-            audio_file_out = path_audio + self.sep + audio_file
-            if self.qval == 1:
-                q = '0'
-            elif self.qval == 2:
-                q = '5'
-            else:
-                q = '10'
-            if not os.path.isfile(audio_file_out):
-                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
-                                + '"' + audio_file_in + '"'
-                                + ' -vn -acodec libvorbis -q:a ' + q + ' -map_metadata 0 '
-                                + '"' + audio_file_out + '"' + ' > ' + self.null,
-                                shell=True)
-        elif self.codec == 4:
-            ext = 'opus'
-            audio_file = file_name + '.' + ext
-            audio_file_out = path_audio + self.sep + audio_file
-            if self.qval == 1:
-                q = '32k'
-            elif self.qval == 2:
-                q = '64k'
-            else:
-                q = '128k'
-            if not os.path.isfile(audio_file_out):
-                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
-                                + '"' + audio_file_in + '"'
-                                + ' -vn -acodec libopus -b:a ' + q + ' -map_metadata 0 '
-                                + '"' + audio_file_out + '"' + ' > ' + self.null,
-                                shell=True)
-
-    def run(self):
-        for audio_file_in in self.audio_files:
-            self.convert2lossy(audio_file_in)
-            self.update_progress_bar.emit()
-
-
-class QPlainTextEditLogger(logging.Handler):
-    def __init__(self, parent):
-        super().__init__()
-        self.widget = QPlainTextEdit(parent)
-        self.widget.setReadOnly(True)
-
-    def emit(self, record):
-        msg = self.format(record)
-        self.widget.appendPlainText(msg)
 
 
 class App(QWidget):
@@ -244,7 +128,7 @@ class App(QWidget):
         combo.currentIndexChanged['int'].connect(self.current_index_changed)
 
         # logging display
-        logTextBox = QPlainTextEditLogger(self)
+        logTextBox = pLogger(self)
         logTextBox.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s -> %(message)s', "%Y-%m-%d %H:%M"))
         logging.getLogger().addHandler(logTextBox)
         logging.getLogger().setLevel(logging.DEBUG) # default level
