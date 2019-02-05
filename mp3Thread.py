@@ -65,69 +65,55 @@ class mp3Thread(QThread):
             except OSError:
                 # logging.exception('Unable to create the destination folder')
                 pass
-        if self.codec == 1:
+        if self.codec == 'MP3':
             ext = 'mp3'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
-            if self.qval == 1:
-                q = '9'
-            elif self.qval == 2:
-                q = '5'
-            else:
-                q = '0'
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                           + '"' + audio_file_in + '"'
-                          + ' -vn -acodec libmp3lame -q:a '+ q + ' -map_metadata 0'
+                          + ' -vn -acodec libmp3lame -q:a '+ self.qval + ' -map_metadata 0'
                           + ' -id3v2_version 3 '
                           + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
-        elif self.codec == 2:
+        elif self.codec == 'AAC':
             ext = 'm4a'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
-            if self.qval == 1:
-                q = '64k'
-            elif self.qval == 2:
-                q = '128k'
-            else:
-                q = '256k'
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -acodec aac -b:a ' + q + ' -map_metadata 0 '
+                                + ' -vn -acodec aac -b:a ' + self.qval + ' -map_metadata 0 '
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
-        elif self.codec == 3:
+        elif self.codec == 'Ogg Vorbis':
             ext = 'ogg'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
-            if self.qval == 1:
-                q = '0'
-            elif self.qval == 2:
-                q = '5'
-            else:
-                q = '10'
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -acodec libvorbis -q:a ' + q + ' -map_metadata 0 '
+                                + ' -vn -acodec libvorbis -q:a ' + self.qval + ' -map_metadata 0 '
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
-        elif self.codec == 4:
+        elif self.codec == 'Opus':
             ext = 'opus'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
-            if self.qval == 1:
-                q = '32k'
-            elif self.qval == 2:
-                q = '64k'
-            else:
-                q = '128k'
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -acodec libopus -b:a ' + q + ' -map_metadata 0 '
+                                + ' -vn -acodec libopus -b:a ' + self.qval + ' -map_metadata 0 '
+                                + '"' + audio_file_out + '"' + ' > ' + self.null,
+                                shell=True)
+        elif self.codec == 'FLAC':
+            ext = 'flac'
+            audio_file = file_name + '.' + ext
+            audio_file_out = path_audio + self.sep + audio_file
+            if not os.path.isfile(audio_file_out):
+                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
+                                + '"' + audio_file_in + '"'
+                                + ' -vn -compression_level ' + self.qval + ' -map_metadata 0 '
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
 
