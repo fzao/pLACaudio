@@ -328,14 +328,17 @@ class App(QWidget):
         self.lcd_count.display(self.lcd_count.value() - 1)
 
     def showCPU(self):
-        cpu_load = psutil.cpu_percent()
-        if cpu_load < 50.:
-            self.cpu_percent.setStyleSheet(safe)
-        elif cpu_load < 80.:
-            self.cpu_percent.setStyleSheet(inter)
+        if self.btn_stop.isEnabled() == True:
+            cpu_load = psutil.cpu_percent()
+            if cpu_load < 50.:
+                self.cpu_percent.setStyleSheet(safe)
+            elif cpu_load < 80.:
+                self.cpu_percent.setStyleSheet(inter)
+            else:
+                self.cpu_percent.setStyleSheet(danger)
+            self.cpu_percent.setValue(cpu_load)
         else:
-            self.cpu_percent.setStyleSheet(danger)
-        self.cpu_percent.setValue(cpu_load)
+            self.cpu_percent.setValue(0.)
 
     def showTIME(self):
         if self.nstart > 0:
