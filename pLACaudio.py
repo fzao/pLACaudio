@@ -82,11 +82,16 @@ class App(QWidget):
         self.elapsed_time = QLCDNumber()
         self.threads = []
         self.nstart = 0
-        self.qval = 0
         self.compression = 0
         self.timer_cpu = QTimer()
         self.timer_elapsed = QTimer()
         self.start_time = QDateTime.currentDateTime().toPyDateTime()
+        self.qval = {'MP3':{'Low':'9', 'Medium':'5', 'High':'0'},\
+                     'AAC':{'Low':'64k', 'Medium':'128k', 'High':'256k'},\
+                     'Ogg Vorbis':{'Low':'0', 'Medium':'5', 'High':'10'},\
+                     'Opus':{'Low':'32k', 'Medium':'64k', 'High':'128k'}}
+        self.myquality = ''
+        self.myformat = ''
         self.initUI()
 
     def initUI(self):
@@ -158,15 +163,13 @@ class App(QWidget):
         # Format
         self.format.setToolTip("Choose the format compression")
         self.format.addItem('Format')
-        self.format.addItems(['MP3', 'AAC', 'Ogg Vorbis', 'Opus'])
-        self.format.currentIndexChanged['int'].connect(self.current_index_changed_format)
-
+        self.format.addItems(list(self.qval.keys()))
+        self.format.currentTextChanged.connect(self.current_index_changed_format)
         # Quality
-        combo_qual = QComboBox()
-        combo_qual.setToolTip("Choose the compression quality ('Low' for a small file size only!)")
-        combo_qual.addItem('Quality')
-        combo_qual.addItems(['Low', 'Medium', 'High'])
-        combo_qual.currentIndexChanged['int'].connect(self.current_index_changed_qual)
+        self.quality.setToolTip("Choose the compression quality ('Low' for a small file size only!)")
+        self.quality.addItem('Quality')
+        self.quality.addItems(['Low', 'Medium', 'High'])
+        self.quality.currentTextChanged.connect(self.current_index_changed_qual)
 
         #  Layout
         hlayout1 = QHBoxLayout()
@@ -182,7 +185,7 @@ class App(QWidget):
         hlayout3 = QHBoxLayout()
         hlayout3.addWidget(self.btn_lossy)
         hlayout3.addWidget(self.format)
-        hlayout3.addWidget(combo_qual)
+        hlayout3.addWidget(self.quality)
         hlayout4 = QHBoxLayout()
         hlayout4.addWidget(self.progress)
         hlayout4.addWidget(self.btn_about)
@@ -225,15 +228,17 @@ class App(QWidget):
         self.ncpu = index
         logging.info('Number of CPUs:\n' + str(self.ncpu))
 
-    @pyqtSlot(int)
-    def current_index_changed_qual(self, index):
-        self.qval = index
-        logging.info('Quality is set to:\n' + str(self.qval))
+    @pyqtSlot()
+    def current_index_changed_qual(self):
+        if self.quality.currentIndex() > 0:
+            self.myquality = self.quality.currentText()
+            logging.info('\nQuality is set to: ' + self.quality.currentText())
 
-    @pyqtSlot(int)
-    def current_index_changed_format(self, index):
-        self.compression = index
-        logging.info('Format is:\n' + str(self.compression))
+    @pyqtSlot()
+    def current_index_changed_format(self):
+        if self.format.currentIndex() > 0:
+            self.myformat = self.format.currentText()
+            logging.info('\nFormat is: ' + self.format.currentText())
 
     @pyqtSlot()
     def call_convert2lossy(self):
@@ -251,8 +256,13 @@ class App(QWidget):
             logging.error('The number of CPUs is not defined!')
             QMessageBox.warning(self, 'Warning', 'The number of CPUs is not defined')
             return
+        # check the format
+        if self.format.currentIndex() < 1:
+            logging.error('The format compression is not chosen!')
+            QMessageBox.warning(self, 'Warning', 'Choose the format compression')
+            return
         # check the Quality
-        if self.qval < 1:
+        if self.quality.currentIndex() < 1:
             logging.error('The quality compression is not chosen!')
             QMessageBox.warning(self, 'Warning', 'Choose the quality compression')
             return
@@ -300,7 +310,8 @@ class App(QWidget):
             audio[i].append(audio_end[i])
         self.threads = []
         for i in range(len(audio)):
-            self.threads.append(mp3Thread(audio[i], self.lossless_folder, self.lossy_location, self.qval, self.compression))
+            q = self.qval[self.myformat][self.myquality]
+            self.threads.append(mp3Thread(audio[i], self.lossless_folder, self.lossy_location, q, self.myformat))
         self.nstart = 0
         for i in range(len(audio)):
             self.threads[i].update_progress_bar.connect(self.update_progress_bar)
