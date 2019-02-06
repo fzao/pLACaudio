@@ -69,7 +69,7 @@ class App(QWidget):
         self.lossless_folder = ''
         self.lossy_location = ''
         self.ncpu = 0
-        self.btn_lossless = QPushButton('ALAC / FLAC / DSF / WAV / AIFF')
+        self.btn_lossless = QPushButton('FLAC / ALAC / DSF / WAV / AIFF')
         self.btn_lossy = QPushButton('Output')
         self.format = QComboBox()
         self.quality = QComboBox()
@@ -91,7 +91,9 @@ class App(QWidget):
                      'Ogg Vorbis':{'Low':'0', 'Medium':'5', 'High':'10'},\
                      'Opus':{'Low':'32k', 'Medium':'64k', 'High':'128k'},\
                      'FLAC':{'Low':'0', 'Medium':'5', 'High':'12'},\
-                     'ALAC':{'Low':'0', 'Medium':'1', 'High':'2'}}
+                     'ALAC':{'Low':'0', 'Medium':'1', 'High':'2'}, \
+                     'WAV': {'Low': '0', 'Medium': '0', 'High': '0'}, \
+                     'AIFF': {'Low': '0', 'Medium': '0', 'High': '0'}}
         self.myquality = ''
         self.myformat = ''
         self.initUI()
@@ -109,7 +111,7 @@ class App(QWidget):
         # button for the folder selection (MP3)
         self.btn_lossy.setMinimumHeight(50)
         self.btn_lossy.move(50, 60)
-        self.btn_lossy.setToolTip('Destination folder for the lossy files')
+        self.btn_lossy.setToolTip('Destination folder for the audio files')
         self.btn_lossy.clicked.connect(self.on_click_mp3)
 
         # buttons for starting and stopping
@@ -163,7 +165,7 @@ class App(QWidget):
         self.progress.setToolTip('Conversion progress')
 
         # Format
-        self.format.setToolTip("Choose the format compression")
+        self.format.setToolTip("Choose the destination format")
         self.format.addItem('-- Format')
         self.format.addItems(list(self.qval.keys()))
         self.format.currentTextChanged.connect(self.current_index_changed_format)
@@ -265,9 +267,12 @@ class App(QWidget):
             return
         # check the Quality
         if self.quality.currentIndex() < 1:
-            logging.error('The quality compression is not chosen!')
-            QMessageBox.warning(self, 'Warning', 'Choose the quality compression')
-            return
+            if self.format.currentIndex() != 7 and self.format.currentIndex() != 8:  # not WAV and AIFF
+                logging.error('The quality compression is not chosen!')
+                QMessageBox.warning(self, 'Warning', 'Choose the quality compression')
+                return
+            else:
+                self.myquality = 'Low'  # WAV and AIFF (no compression)
         # start time
         self.start_time = QDateTime().currentDateTime().toPyDateTime()
         # get the list of all files to convert

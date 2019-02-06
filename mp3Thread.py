@@ -126,6 +126,26 @@ class mp3Thread(QThread):
                                 + ' -vn -acodec alac -compression_level ' + self.qval + ' -map_metadata 0 '
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
+        elif self.codec == 'WAV':
+            ext = 'wav'
+            audio_file = file_name + '.' + ext
+            audio_file_out = path_audio + self.sep + audio_file
+            if not os.path.isfile(audio_file_out):
+                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
+                                + '"' + audio_file_in + '"'
+                                + ' -vn ' + ' -map_metadata 0 '
+                                + '"' + audio_file_out + '"' + ' > ' + self.null,
+                                shell=True)
+        elif self.codec == 'AIFF':
+            ext = 'aif'
+            audio_file = file_name + '.' + ext
+            audio_file_out = path_audio + self.sep + audio_file
+            if not os.path.isfile(audio_file_out):
+                subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
+                                + '"' + audio_file_in + '"'
+                                + ' -vn ' + ' -map_metadata 0 '
+                                + '"' + audio_file_out + '"' + ' > ' + self.null,
+                                shell=True)
     def run(self):
         for audio_file_in in self.audio_files:
             self.convert2lossy(audio_file_in)
