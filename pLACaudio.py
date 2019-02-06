@@ -80,11 +80,15 @@ class App(QWidget):
         self.cpu_percent = QProgressBar()
         self.lcd_count = QLCDNumber()
         self.elapsed_time = QLCDNumber()
+        self.perf = QLabel()
         self.threads = []
         self.nstart = 0
+        self.nm1 = 0
+        self.n0 = 0
         self.compression = 0
         self.timer_cpu = QTimer()
         self.timer_elapsed = QTimer()
+        self.timer_perf = QTimer()
         self.start_time = QDateTime.currentDateTime().toPyDateTime()
         self.qval = {'MP3':{'Low':['9', 'VBR 45-85 kbit/s'], 'Medium':['5', 'VBR 120-150 kbit/s'], 'High':['0', 'VBR 220-260 kbit/s']},\
                      'AAC':{'Low':['64k', 'CBR 64 kbit/s'], 'Medium':['128k', 'CBR 128 kbit/s'], 'High':['256k', 'CBR 256 kbit/s']},\
@@ -158,6 +162,11 @@ class App(QWidget):
         self.timer_cpu.timeout.connect(self.showCPU)
         self.timer_cpu.start(1000)
 
+        # Performance
+        self.perf.setText('speed:0 files/5sec')
+        self.timer_perf.timeout.connect(self.showPERF)
+        self.timer_perf.start(5000)
+
         # Elapsed time
         self.timer_elapsed.timeout.connect(self.showTIME)
         self.timer_elapsed.start(1000)
@@ -170,6 +179,7 @@ class App(QWidget):
         self.format.addItem('- Format')
         self.format.addItems(list(self.qval.keys()))
         self.format.currentTextChanged.connect(self.current_index_changed_format)
+
         # Quality
         self.quality.setToolTip("Choose the compression quality ('Low' for a small file size only!)")
         self.quality.addItem('- Quality')
@@ -216,8 +226,11 @@ class App(QWidget):
         hlayout3 = QHBoxLayout()
         hlayout3.addWidget(self.progress)
         hlayout3.addWidget(self.btn_about)
+        vlayout6 = QVBoxLayout()
+        vlayout6.addLayout(hlayout3)
+        vlayout6.addWidget(self.perf)
         grp_pro = QGroupBox('progress')
-        grp_pro.setLayout(hlayout3)
+        grp_pro.setLayout(vlayout6)
         grp_pro.setToolTip('See the progress status')
 
         grid = QGridLayout()
@@ -335,6 +348,8 @@ class App(QWidget):
         self.progress.setMaximum(len(audio_files) - 1)
         self.progress.setValue(0)
         self.lcd_count.display(len(audio_files))
+        self.nm1 = len(audio_files)
+        self.n0 = len(audio_files)
         # Thread execution
         n = min(self.ncpu, len(audio_files))
         audio = [audio_files[i * n:(i + 1) * n] for i in range((len(audio_files) + n - 1) // n)]
@@ -369,6 +384,7 @@ class App(QWidget):
             self.progress.setValue(0)
             self.lcd_count.display(0)
             self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
+            self.perf.setText('speed:0 files/5sec')
 
     def update_progress_bar(self):
         self.progress.setValue(self.progress.value() + 1)
@@ -386,6 +402,12 @@ class App(QWidget):
             self.cpu_percent.setValue(cpu_load)
         else:
             self.cpu_percent.setValue(0.)
+
+    def showPERF(self):
+        if self.btn_stop.isEnabled() == True:
+            self.nm1 = self.n0
+            self.n0 = self.lcd_count.value()
+            self.perf.setText('speed: %d files/5sec' % (self.nm1 - self.n0))
 
     def showTIME(self):
         if self.nstart > 0:
