@@ -1,7 +1,17 @@
 -----------
+VERSION 0.2 (February xx 2019)
+-----------
+- conversion Lossless --> Lossless is supported
+- new DSD/DSF format in input
+- add MP4 AAC in output
+- GUI improvements
+- Some statistics on compression
+- ffmpeg 4.1
+
+-----------
 VERSION 0.1 (February 01 2019)
 -----------
 - first release
-- input formats: ALAC / FLAC / WAV / aiff
-- output formats: MP3 / Ogg Vorbis / opus
+- input formats: ALAC / FLAC / WAV / AIFF
+- output formats: MP3 / Ogg Vorbis / Opus
 - ffmpeg 4.1
