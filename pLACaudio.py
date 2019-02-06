@@ -89,7 +89,8 @@ class App(QWidget):
         self.qval = {'MP3':{'Low':'9', 'Medium':'5', 'High':'0'},\
                      'AAC':{'Low':'64k', 'Medium':'128k', 'High':'256k'},\
                      'Ogg Vorbis':{'Low':'0', 'Medium':'5', 'High':'10'},\
-                     'Opus':{'Low':'32k', 'Medium':'64k', 'High':'128k'}}
+                     'Opus':{'Low':'32k', 'Medium':'64k', 'High':'128k'},\
+                     'FLAC':{'Low':'0', 'Medium':'5', 'High':'12'}}
         self.myquality = ''
         self.myformat = ''
         self.initUI()
