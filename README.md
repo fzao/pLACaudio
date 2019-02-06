@@ -5,10 +5,12 @@ A minimalist tool designed for the simple and fast conversion of large libraries
 Input folder of lossless files can include the following formats:
 - ALAC
 - [FLAC](https://xiph.org/flac/)
+- [DSF](https://en.wikipedia.org/wiki/Direct_Stream_Digital) (Hi-Res Direct Stream Digital)
 - WAV
 - AIFF
 
-Output lossy formats are either:
+Output formats are either lossless or lossy ones:
+- ALAC, FLAC, WAV, AIFF
 - [MP3](http://lame.sourceforge.net/)
 - [Ogg Vorbis](https://xiph.org/vorbis/)
 - [Opus](http://opus-codec.org/)
@@ -17,7 +19,7 @@ pLACaudio runs on a number of cores (conversion in parallel mode) chosen by the 
 
 pLACaudio uses ffMPEG (A complete, cross-platform solution to record, convert and stream audio and video). ffMPEG is a free software and is distributed under the terms of the GNU General Public License v3 see https://www.ffmpeg.org/ for more information).
 
-Three settings of the output quality audio are possible.
+Three settings of the output quality audio are possible (bit rate values).
 
 <p align="center">
   <img src="./img/Windows_win10.png" width="200"/>
