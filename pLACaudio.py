@@ -167,12 +167,12 @@ class App(QWidget):
 
         # Format
         self.format.setToolTip("Choose the destination format")
-        self.format.addItem('-- Format')
+        self.format.addItem('- Format')
         self.format.addItems(list(self.qval.keys()))
         self.format.currentTextChanged.connect(self.current_index_changed_format)
         # Quality
         self.quality.setToolTip("Choose the compression quality ('Low' for a small file size only!)")
-        self.quality.addItem('-- Quality')
+        self.quality.addItem('- Quality')
         self.quality.addItems(['Low', 'Medium', 'High'])
         self.quality.currentTextChanged.connect(self.current_index_changed_qual)
 
@@ -182,11 +182,13 @@ class App(QWidget):
         vlayout1.addWidget(self.btn_lossy)
         grp_io = QGroupBox('io')
         grp_io.setLayout(vlayout1)
+        grp_io.setToolTip('Choose the folders')
         vlayout2 = QVBoxLayout()
         vlayout2.addWidget(self.format)
         vlayout2.addWidget(self.quality)
         grp_codec = QGroupBox('codec')
         grp_codec.setLayout(vlayout2)
+        grp_codec.setToolTip('Audio file type')
 
         hlayout1 = QHBoxLayout()
         hlayout1.addWidget(combo)
@@ -203,17 +205,20 @@ class App(QWidget):
         vlayout4.addLayout(hlayout2)
         grp_conv = QGroupBox('convert')
         grp_conv.setLayout(vlayout4)
+        grp_conv.setToolTip('Control the conversion')
 
         vlayout5 = QVBoxLayout()
         vlayout5.addWidget(logTextBox.widget)
         grp_log = QGroupBox('logger')
         grp_log.setLayout(vlayout5)
+        grp_log.setToolTip('Information')
 
         hlayout3 = QHBoxLayout()
         hlayout3.addWidget(self.progress)
         hlayout3.addWidget(self.btn_about)
         grp_pro = QGroupBox('progress')
         grp_pro.setLayout(hlayout3)
+        grp_pro.setToolTip('See the progress status')
 
         grid = QGridLayout()
         grid.addWidget(grp_io, 0, 0)
