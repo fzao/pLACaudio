@@ -90,7 +90,8 @@ class App(QWidget):
                      'AAC':{'Low':'64k', 'Medium':'128k', 'High':'256k'},\
                      'Ogg Vorbis':{'Low':'0', 'Medium':'5', 'High':'10'},\
                      'Opus':{'Low':'32k', 'Medium':'64k', 'High':'128k'},\
-                     'FLAC':{'Low':'0', 'Medium':'5', 'High':'12'}}
+                     'FLAC':{'Low':'0', 'Medium':'5', 'High':'12'},\
+                     'ALAC':{'Low':'0', 'Medium':'1', 'High':'2'}}
         self.myquality = ''
         self.myformat = ''
         self.initUI()
@@ -163,12 +164,12 @@ class App(QWidget):
 
         # Format
         self.format.setToolTip("Choose the format compression")
-        self.format.addItem('Format')
+        self.format.addItem('-- Format')
         self.format.addItems(list(self.qval.keys()))
         self.format.currentTextChanged.connect(self.current_index_changed_format)
         # Quality
         self.quality.setToolTip("Choose the compression quality ('Low' for a small file size only!)")
-        self.quality.addItem('Quality')
+        self.quality.addItem('-- Quality')
         self.quality.addItems(['Low', 'Medium', 'High'])
         self.quality.currentTextChanged.connect(self.current_index_changed_qual)
 
