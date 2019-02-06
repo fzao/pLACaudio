@@ -85,6 +85,7 @@ class App(QWidget):
         self.nstart = 0
         self.nm1 = 0
         self.n0 = 0
+        self.perfmean = []
         self.compression = 0
         self.timer_cpu = QTimer()
         self.timer_elapsed = QTimer()
@@ -163,9 +164,9 @@ class App(QWidget):
         self.timer_cpu.start(1000)
 
         # Performance
-        self.perf.setText('speed:0 files/5sec')
+        self.perf.setText('speed:0 files/sec\t(mean: 0.0)')
         self.timer_perf.timeout.connect(self.showPERF)
-        self.timer_perf.start(5000)
+        self.timer_perf.start(1000)
 
         # Elapsed time
         self.timer_elapsed.timeout.connect(self.showTIME)
@@ -384,7 +385,8 @@ class App(QWidget):
             self.progress.setValue(0)
             self.lcd_count.display(0)
             self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
-            self.perf.setText('speed:0 files/5sec')
+            self.perf.setText('speed:0 files/sec\t(mean: 0.0)')
+            self.perfmean = []
 
     def update_progress_bar(self):
         self.progress.setValue(self.progress.value() + 1)
@@ -407,7 +409,10 @@ class App(QWidget):
         if self.btn_stop.isEnabled() == True:
             self.nm1 = self.n0
             self.n0 = self.lcd_count.value()
-            self.perf.setText('speed: %d files/5sec' % (self.nm1 - self.n0))
+            delta = self.nm1 - self.n0
+            self.perfmean.append(delta)
+            meanval = sum(self.perfmean) / len(self.perfmean)
+            self.perf.setText('speed: %d files/sec\t(mean: %.2f)' % (delta, meanval))
 
     def showTIME(self):
         if self.nstart > 0:
