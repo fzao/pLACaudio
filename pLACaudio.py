@@ -65,7 +65,7 @@ class App(QWidget):
         super().__init__()
         self.title = 'pLACaudio'
         self.setWindowIcon(QIcon('./icon/beer.ico'))
-        self.setFixedSize(480, 640)
+        self.setBaseSize(480, 640)
         self.lossless_folder = ''
         self.lossy_location = ''
         self.ncpu = 0
