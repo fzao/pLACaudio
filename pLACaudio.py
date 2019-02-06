@@ -1,7 +1,7 @@
 """
 A minimalist tool designed for a simple and fast conversion of large libraries
- of lossless audio files (ALAC, FLAC, DSF, WAV & AIFF)
- to lossy formats (MP3, AAC, Ogg Vorbis & Opus)
+ of lossless audio files (ALAC, FLAC, DSD/DSF, WAV & AIFF) to another lossless
+ or lossy formats (ALAC, FLAC, WAV, AIFF, MP3, AAC, Ogg Vorbis & Opus)
 
 pLAC-Audio has an intensive parallel use of FFmpeg for the conversion
 
