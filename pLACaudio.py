@@ -336,7 +336,7 @@ class App(QWidget):
             self.btn_stop.setEnabled(False)
             self.btn_start.setEnabled(True)
             logging.info('Done!')
-            QMessageBox.information(self, "Done!", "Lossy conversion done!")
+            QMessageBox.information(self, "Done!", "Conversion done!")
             self.progress.setValue(0)
             self.lcd_count.display(0)
             self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
