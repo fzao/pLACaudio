@@ -86,14 +86,15 @@ class App(QWidget):
         self.timer_cpu = QTimer()
         self.timer_elapsed = QTimer()
         self.start_time = QDateTime.currentDateTime().toPyDateTime()
-        self.qval = {'MP3':{'Low':'9', 'Medium':'5', 'High':'0'},\
-                     'AAC':{'Low':'64k', 'Medium':'128k', 'High':'256k'},\
-                     'Ogg Vorbis':{'Low':'0', 'Medium':'5', 'High':'10'},\
-                     'Opus':{'Low':'32k', 'Medium':'64k', 'High':'128k'},\
-                     'FLAC':{'Low':'0', 'Medium':'5', 'High':'12'},\
-                     'ALAC':{'Low':'0', 'Medium':'1', 'High':'2'}, \
-                     'WAV': {'Low': '0', 'Medium': '0', 'High': '0'}, \
-                     'AIFF': {'Low': '0', 'Medium': '0', 'High': '0'}}
+        self.qval = {'MP3':{'Low':['9', 'VBR 45-85 kbit/s'], 'Medium':['5', 'VBR 120-150 kbit/s'], 'High':['0', 'VBR 220-260 kbit/s']},\
+                     'AAC':{'Low':['64k', 'CBR 64 kbit/s'], 'Medium':['128k', 'CBR 128 kbit/s'], 'High':['256k', 'CBR 256 kbit/s']},\
+                     'Ogg Vorbis':{'Low':['0', 'VBR 64 kbit/s'], 'Medium':['5', 'VBR 160 kbit/s'], 'High':['10', 'VBR 500 kbit/s']},\
+                     'Opus':{'Low':['32k', 'CBR 32 kbit/s'], 'Medium':['64k', 'CBR 64 kbit/s'], 'High':['128k', 'CBR 128 kbit/s']},\
+                     'FLAC':{'Low':['0', 'Compression Level: 0'], 'Medium':['5', 'Compression Level: 5'], 'High':['12', 'Compression Level: 12']},\
+                     'ALAC':{'Low':['0', 'Compression Level: 0'], 'Medium':['1', 'Compression Level: 1'], 'High':['2', 'Compression Level:2']}, \
+                     'WAV': {'Low': ['0', 'No Compression'], 'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}, \
+                     'AIFF': {'Low': ['0', 'No Compression'],'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}}
+
         self.myquality = ''
         self.myformat = ''
         self.initUI()
@@ -210,7 +211,7 @@ class App(QWidget):
         self.lossless_folder = QFileDialog.getExistingDirectory(self, 'Select Folder')
         if os.name == 'nt':  # Windows specific
             self.lossless_folder = self.lossless_folder.replace('/', '\\')
-        logging.info('from folder:\n' + self.lossless_folder)
+        logging.info('from folder: ' + self.lossless_folder)
         if self.lossless_folder != '':
             self.btn_lossless.setToolTip(self.lossless_folder)
 
@@ -219,7 +220,7 @@ class App(QWidget):
         self.lossy_location = QFileDialog.getExistingDirectory(self, 'Select Folder')
         if os.name == 'nt':  # Windows specific
             self.lossy_location = self.lossy_location.replace('/', '\\')
-        logging.info('to folder:\n' + self.lossy_location)
+        logging.info('to folder: ' + self.lossy_location)
         if self.lossy_location != '':
             self.btn_lossy.setToolTip(self.lossy_location)
 
@@ -230,19 +231,22 @@ class App(QWidget):
     @pyqtSlot(int)
     def current_index_changed(self, index):
         self.ncpu = index
-        logging.info('Number of CPUs:\n' + str(self.ncpu))
+        logging.info('Number of CPUs: ' + str(self.ncpu))
 
     @pyqtSlot()
     def current_index_changed_qual(self):
         if self.quality.currentIndex() > 0:
             self.myquality = self.quality.currentText()
-            logging.info('\nQuality is set to: ' + self.quality.currentText())
+            if self.format.currentIndex() > 0:
+                logging.info('Quality is set to: ' + self.qval[self.myformat][self.myquality][1])
 
     @pyqtSlot()
     def current_index_changed_format(self):
         if self.format.currentIndex() > 0:
             self.myformat = self.format.currentText()
-            logging.info('\nFormat is: ' + self.format.currentText())
+            logging.info('Format is: ' + self.format.currentText())
+            if self.quality.currentIndex() > 0:
+                logging.info('Quality is set to: ' + self.qval[self.myformat][self.myquality][1])
 
     @pyqtSlot()
     def call_convert2lossy(self):
@@ -296,12 +300,12 @@ class App(QWidget):
             QMessageBox.warning(self, 'Warning', 'No lossless files found!')
             return
         else:
-            logging.info('Number of ALAC files:\n' + str(len(audio_alac)))
-            logging.info('Number of FLAC files:\n' + str(len(audio_flac)))
-            logging.info('Number of DSF files:\n' + str(len(audio_dsf)))
-            logging.info('Number of WAV files:\n' + str(len(audio_wav)))
-            logging.info('Number of AIFF files:\n' + str(len(audio_aiff)))
-            logging.info('Total number of files:\n' + str(len(audio_files)))
+            logging.info('Number of ALAC files: ' + str(len(audio_alac)))
+            logging.info('Number of FLAC files: ' + str(len(audio_flac)))
+            logging.info('Number of DSF files: ' + str(len(audio_dsf)))
+            logging.info('Number of WAV files: ' + str(len(audio_wav)))
+            logging.info('Number of AIFF files: ' + str(len(audio_aiff)))
+            logging.info('Total number of files: ' + str(len(audio_files)))
         self.progress.setMinimum(0)
         self.progress.setMaximum(len(audio_files) - 1)
         self.progress.setValue(0)
@@ -317,7 +321,7 @@ class App(QWidget):
             audio[i].append(audio_end[i])
         self.threads = []
         for i in range(len(audio)):
-            q = self.qval[self.myformat][self.myquality]
+            q = self.qval[self.myformat][self.myquality][0]
             self.threads.append(mp3Thread(audio[i], self.lossless_folder, self.lossy_location, q, self.myformat))
         self.nstart = 0
         for i in range(len(audio)):
