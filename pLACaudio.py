@@ -54,7 +54,7 @@ import psutil
 import logging
 from mp3Thread import mp3Thread
 from pLogger import pLogger
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QFileDialog, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QGroupBox, QFileDialog, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
 from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime
 from PyQt5.QtGui import QIcon
 from PyQt5 import sip
@@ -177,31 +177,51 @@ class App(QWidget):
         self.quality.currentTextChanged.connect(self.current_index_changed_qual)
 
         #  Layout
+        vlayout1 = QVBoxLayout()
+        vlayout1.addWidget(self.btn_lossless)
+        vlayout1.addWidget(self.btn_lossy)
+        grp_io = QGroupBox('io')
+        grp_io.setLayout(vlayout1)
+        vlayout2 = QVBoxLayout()
+        vlayout2.addWidget(self.format)
+        vlayout2.addWidget(self.quality)
+        grp_codec = QGroupBox('codec')
+        grp_codec.setLayout(vlayout2)
+
         hlayout1 = QHBoxLayout()
         hlayout1.addWidget(combo)
         hlayout1.addWidget(self.cpu_percent)
         hlayout2 = QHBoxLayout()
         hlayout2.addWidget(self.btn_start)
         hlayout2.addWidget(self.btn_stop)
-        vlayout = QVBoxLayout()
-        vlayout.addWidget(self.elapsed_time)
-        vlayout.addWidget(self.lcd_count)
-        hlayout2.addLayout(vlayout)
+        vlayout3 = QVBoxLayout()
+        vlayout3.addWidget(self.elapsed_time)
+        vlayout3.addWidget(self.lcd_count)
+        hlayout2.addLayout(vlayout3)
+        vlayout4 = QVBoxLayout()
+        vlayout4.addLayout(hlayout1)
+        vlayout4.addLayout(hlayout2)
+        grp_conv = QGroupBox('convert')
+        grp_conv.setLayout(vlayout4)
+
+        vlayout5 = QVBoxLayout()
+        vlayout5.addWidget(logTextBox.widget)
+        grp_log = QGroupBox('logger')
+        grp_log.setLayout(vlayout5)
+
         hlayout3 = QHBoxLayout()
-        hlayout3.addWidget(self.btn_lossy)
-        hlayout3.addWidget(self.format)
-        hlayout3.addWidget(self.quality)
-        hlayout4 = QHBoxLayout()
-        hlayout4.addWidget(self.progress)
-        hlayout4.addWidget(self.btn_about)
-        layout = QVBoxLayout()
-        layout.addWidget(self.btn_lossless)
-        layout.addLayout(hlayout3)
-        layout.addLayout(hlayout1)
-        layout.addLayout(hlayout2)
-        layout.addWidget(logTextBox.widget)
-        layout.addLayout(hlayout4)
-        self.setLayout(layout)
+        hlayout3.addWidget(self.progress)
+        hlayout3.addWidget(self.btn_about)
+        grp_pro = QGroupBox('progress')
+        grp_pro.setLayout(hlayout3)
+
+        grid = QGridLayout()
+        grid.addWidget(grp_io, 0, 0)
+        grid.addWidget(grp_codec, 0, 1)
+        grid.addWidget(grp_conv, 1, 0, 1, 0)
+        grid.addWidget(grp_log, 2, 0, 1, 0)
+        grid.addWidget(grp_pro, 3, 0, 1, 0)
+        self.setLayout(grid)
 
         # show window
         self.show()
