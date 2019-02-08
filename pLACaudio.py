@@ -52,8 +52,9 @@ import glob
 import multiprocessing as mp
 import psutil
 import logging
-from mp3Thread import mp3Thread
-from pLogger import pLogger
+from mp3Thread import MP3Thread
+from pLogger import PLogger
+from ddButton import DDButtonFrom, DDButtonTo
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QGroupBox, QFileDialog, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
 from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime
 from PyQt5.QtGui import QIcon
@@ -69,8 +70,10 @@ class App(QWidget):
         self.lossless_folder = ''
         self.lossy_location = ''
         self.ncpu = 0
-        self.btn_lossless = QPushButton('FLAC / ALAC / DSF / WAV / AIFF')
-        self.btn_lossy = QPushButton('Output')
+        self.btn_lossless = DDButtonFrom(self)
+        self.btn_lossless.setText('FLAC / ALAC / DSF / WAV / AIFF')
+        self.btn_lossy = DDButtonTo(self)
+        self.btn_lossy.setText('Output')
         self.format = QComboBox()
         self.quality = QComboBox()
         self.btn_start = QPushButton('START')
@@ -111,13 +114,13 @@ class App(QWidget):
         # button for the folder selection (ALAC)
         self.btn_lossless.setMinimumHeight(50)
         self.btn_lossless.move(50, 10)
-        self.btn_lossless.setToolTip('Folder of lossless files to convert')
+        self.btn_lossless.setToolTip('Drag and Drop the folder of lossless files to convert')
         self.btn_lossless.clicked.connect(self.on_click_alac)
 
         # button for the folder selection (MP3)
         self.btn_lossy.setMinimumHeight(50)
         self.btn_lossy.move(50, 60)
-        self.btn_lossy.setToolTip('Destination folder for the audio files')
+        self.btn_lossy.setToolTip('Drag and Drop the destination folder for the audio files')
         self.btn_lossy.clicked.connect(self.on_click_mp3)
 
         # buttons for starting and stopping
@@ -143,7 +146,7 @@ class App(QWidget):
         combo.currentIndexChanged['int'].connect(self.current_index_changed)
 
         # logging display
-        logTextBox = pLogger(self)
+        logTextBox = PLogger(self)
         logTextBox.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s -> %(message)s', "%Y-%m-%d %H:%M"))
         logging.getLogger().addHandler(logTextBox)
         logging.getLogger().setLevel(logging.DEBUG) # default level
@@ -363,7 +366,7 @@ class App(QWidget):
         self.threads = []
         for i in range(len(audio)):
             q = self.qval[self.myformat][self.myquality][0]
-            self.threads.append(mp3Thread(audio[i], self.lossless_folder, self.lossy_location, q, self.myformat))
+            self.threads.append(MP3Thread(audio[i], self.lossless_folder, self.lossy_location, q, self.myformat))
         self.nstart = 0
         for i in range(len(audio)):
             self.threads[i].update_progress_bar.connect(self.update_progress_bar)

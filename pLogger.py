@@ -30,7 +30,8 @@ License GNU GPL v3
 import logging
 from PyQt5.QtWidgets import QPlainTextEdit
 
-class pLogger(logging.Handler):
+
+class PLogger(logging.Handler):
     def __init__(self, parent):
         super().__init__()
         self.widget = QPlainTextEdit(parent)

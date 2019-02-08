@@ -31,7 +31,8 @@ import os
 import subprocess
 from PyQt5.QtCore import QThread, pyqtSignal
 
-class mp3Thread(QThread):
+
+class MP3Thread(QThread):
     update_progress_bar = pyqtSignal()
 
     def __init__(self, audio_files, lossless_folder, lossy_location, qvalue, codec):
