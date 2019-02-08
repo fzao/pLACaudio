@@ -55,6 +55,7 @@ import logging
 from mp3Thread import MP3Thread
 from pLogger import PLogger
 from ddButton import DDButtonFrom, DDButtonTo
+from pPref import Preference
 from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar, QPushButton, QGridLayout, QGroupBox, QFileDialog, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
 from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime
 from PyQt5.QtGui import QIcon
@@ -111,11 +112,14 @@ class App(QWidget):
         # window title and geometry
         self.setWindowTitle(self.title)
 
-        aboutpLAC = QAction('About', self)
-        aboutpLAC.setToolTip('About pLACaudio software')
-        aboutpLAC.triggered.connect(self.call_info)
+        # menu bar
         pLAC = self.myQMenuBar.addMenu('pLACaudio')
+        aboutpLAC = QAction('About', self)
+        aboutpLAC.triggered.connect(self.call_info)
         pLAC.addAction(aboutpLAC)
+        prefpLAC = QAction('Preferences', self)
+        prefpLAC.triggered.connect(self.call_pref)
+        pLAC.addAction(prefpLAC)
 
         # button for the folder selection (ALAC)
         self.btn_lossless.setMinimumHeight(50)
@@ -269,6 +273,12 @@ class App(QWidget):
     @pyqtSlot()
     def call_info(self):
         QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio'>pLACaudio v" + version + " </a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
+
+    @pyqtSlot()
+    def call_pref(self):
+        #QMessageBox.information(self, "Preferences", "Si on veut!")
+        self.pref = Preference(self)
+        self.pref.show()
 
     @pyqtSlot(int)
     def current_index_changed(self, index):
