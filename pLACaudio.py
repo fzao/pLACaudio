@@ -55,7 +55,7 @@ import logging
 from mp3Thread import MP3Thread
 from pLogger import PLogger
 from ddButton import DDButtonFrom, DDButtonTo
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QGroupBox, QFileDialog, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
+from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar, QPushButton, QGridLayout, QGroupBox, QFileDialog, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
 from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime
 from PyQt5.QtGui import QIcon
 from PyQt5 import sip
@@ -64,7 +64,8 @@ from PyQt5 import sip
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        self.title = 'pLACaudio'
+        self.myQMenuBar = QMenuBar(self)
+        self.title = 'pLACaudio ' + version
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setBaseSize(480, 640)
         self.lossless_folder = ''
@@ -78,7 +79,6 @@ class App(QWidget):
         self.quality = QComboBox()
         self.btn_start = QPushButton('START')
         self.btn_stop = QPushButton('STOP')
-        self.btn_about = QPushButton('About')
         self.progress = QProgressBar()
         self.cpu_percent = QProgressBar()
         self.lcd_count = QLCDNumber()
@@ -111,6 +111,12 @@ class App(QWidget):
         # window title and geometry
         self.setWindowTitle(self.title)
 
+        aboutpLAC = QAction('About', self)
+        aboutpLAC.setToolTip('About pLACaudio software')
+        aboutpLAC.triggered.connect(self.call_info)
+        pLAC = self.myQMenuBar.addMenu('pLACaudio')
+        pLAC.addAction(aboutpLAC)
+
         # button for the folder selection (ALAC)
         self.btn_lossless.setMinimumHeight(50)
         self.btn_lossless.move(50, 10)
@@ -132,10 +138,6 @@ class App(QWidget):
         self.btn_stop.setEnabled(False)
         self.btn_stop.setToolTip('Stop conversion')
         self.btn_stop.setIcon(QIcon(QApplication.style().standardIcon(QStyle.SP_MediaStop)))
-
-        # button 'about'
-        self.btn_about.setMaximumWidth(100)
-        self.btn_about.clicked.connect(self.call_info)
 
         # Choosing number of cpu with a ComboBox
         combo = QComboBox()
@@ -227,22 +229,20 @@ class App(QWidget):
         grp_log.setLayout(vlayout5)
         grp_log.setToolTip('Information')
 
-        hlayout3 = QHBoxLayout()
-        hlayout3.addWidget(self.progress)
-        hlayout3.addWidget(self.btn_about)
         vlayout6 = QVBoxLayout()
-        vlayout6.addLayout(hlayout3)
+        vlayout6.addWidget(self.progress)
         vlayout6.addWidget(self.perf)
         grp_pro = QGroupBox('progress')
         grp_pro.setLayout(vlayout6)
         grp_pro.setToolTip('See the progress status')
 
         grid = QGridLayout()
-        grid.addWidget(grp_io, 0, 0)
-        grid.addWidget(grp_codec, 0, 1)
-        grid.addWidget(grp_conv, 1, 0, 1, 0)
-        grid.addWidget(grp_log, 2, 0, 1, 0)
-        grid.addWidget(grp_pro, 3, 0, 1, 0)
+        grid.addWidget(self.myQMenuBar, 0, 0, 1, 0)
+        grid.addWidget(grp_io, 1, 0)
+        grid.addWidget(grp_codec, 1, 1)
+        grid.addWidget(grp_conv, 2, 0, 1, 0)
+        grid.addWidget(grp_log, 3, 0, 1, 0)
+        grid.addWidget(grp_pro, 4, 0, 1, 0)
         self.setLayout(grid)
 
         # show window
@@ -268,7 +268,7 @@ class App(QWidget):
 
     @pyqtSlot()
     def call_info(self):
-        QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio'>pLACaudio v0.2 beta</a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
+        QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio'>pLACaudio v" + version + " </a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
 
     @pyqtSlot(int)
     def current_index_changed(self, index):
@@ -432,6 +432,7 @@ if __name__ == '__main__':
     danger = "QProgressBar::chunk { background-color: #FF3633;}"
     inter = "QProgressBar::chunk { background-color: #FFAF33;}"
     safe = "QProgressBar::chunk {background-color: #61FF33;}"
+    version = '0.3'
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
