@@ -103,7 +103,9 @@ class App(QWidget):
                      'ALAC':{'Low':['0', 'Compression Level: 0'], 'Medium':['1', 'Compression Level: 1'], 'High':['2', 'Compression Level:2']}, \
                      'WAV': {'Low': ['0', 'No Compression'], 'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}, \
                      'AIFF': {'Low': ['0', 'No Compression'],'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}}
-
+        self.danger = "QProgressBar::chunk { background-color: #FF3633;}"
+        self.inter = "QProgressBar::chunk { background-color: #FFAF33;}"
+        self.safe = "QProgressBar::chunk {background-color: #61FF33;}"
         self.myquality = ''
         self.myformat = ''
         self.initUI()
@@ -413,11 +415,11 @@ class App(QWidget):
         if self.btn_stop.isEnabled() == True:
             cpu_load = psutil.cpu_percent()
             if cpu_load < 50.:
-                self.cpu_percent.setStyleSheet(safe)
+                self.cpu_percent.setStyleSheet(self.safe)
             elif cpu_load < 80.:
-                self.cpu_percent.setStyleSheet(inter)
+                self.cpu_percent.setStyleSheet(self.inter)
             else:
-                self.cpu_percent.setStyleSheet(danger)
+                self.cpu_percent.setStyleSheet(self.danger)
             self.cpu_percent.setValue(cpu_load)
         else:
             self.cpu_percent.setValue(0.)
@@ -443,9 +445,6 @@ class App(QWidget):
 
 
 if __name__ == '__main__':
-    danger = "QProgressBar::chunk { background-color: #FF3633;}"
-    inter = "QProgressBar::chunk { background-color: #FFAF33;}"
-    safe = "QProgressBar::chunk {background-color: #61FF33;}"
     version = '0.3'
     app = QApplication(sys.argv)
     ex = App()

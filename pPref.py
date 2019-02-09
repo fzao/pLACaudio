@@ -59,9 +59,14 @@ class Preference(QMainWindow):
     def changeStyle(self):
         if self.style.isChecked():
             self.parent().setStyleSheet('QWidget { background-color: #2C2F33 ; color: #D9D9D9; selection-color: #D9D9D9; selection-background-color: #2C2F33}')
+            self.parent().danger = "QProgressBar::chunk { background-color: #B90000;}"
+            self.parent().inter = "QProgressBar::chunk { background-color: #B97F00;}"
+            self.parent().safe = "QProgressBar::chunk {background-color: #6D9200;}"
         else:
             self.parent().setStyleSheet('')
-
+            self.parent().danger = "QProgressBar::chunk { background-color: #FF3633;}"
+            self.parent().inter = "QProgressBar::chunk { background-color: #FFAF33;}"
+            self.parent().safe = "QProgressBar::chunk {background-color: #61FF33;}"
     def pref_exit(self):
         self.close()
 
