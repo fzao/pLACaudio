@@ -1,5 +1,5 @@
 -----------
-VERSION 0.2 (February xx 2019)
+VERSION 0.2 (February 09 2019)
 -----------
 - conversion Lossless --> Lossless is supported
 - new DSD/DSF format in input
