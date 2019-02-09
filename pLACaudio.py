@@ -136,12 +136,12 @@ class App(QWidget):
         # buttons for starting and stopping
         self.btn_start.setMinimumHeight(100)
         self.btn_start.setToolTip('Start conversion')
-        self.btn_start.setIcon(QIcon(QApplication.style().standardIcon(QStyle.SP_MediaPlay)))
+        self.btn_start.setIcon(QIcon('./icon/play_on.png'))
         self.btn_start.clicked.connect(self.call_convert2lossy)
         self.btn_stop.setMinimumHeight(100)
         self.btn_stop.setEnabled(False)
         self.btn_stop.setToolTip('Stop conversion')
-        self.btn_stop.setIcon(QIcon(QApplication.style().standardIcon(QStyle.SP_MediaStop)))
+        self.btn_stop.setIcon(QIcon('./icon/stop_off.png'))
 
         # Choosing number of cpu with a ComboBox
         combo = QComboBox()
@@ -386,13 +386,17 @@ class App(QWidget):
             self.btn_stop.clicked.connect(self.threads[i].terminate)
         logging.info('Conversion in progress...')
         self.btn_stop.setEnabled(True)
+        self.btn_stop.setIcon(QIcon('./icon/stop_on.png'))
         self.btn_start.setEnabled(False)
+        self.btn_start.setIcon(QIcon('./icon/play_off.png'))
 
     def done(self):
         self.nstart -= 1
         if self.nstart == 0:
             self.btn_stop.setEnabled(False)
+            self.btn_stop.setIcon(QIcon('./icon/stop_off.png'))
             self.btn_start.setEnabled(True)
+            self.btn_start.setIcon(QIcon('./icon/play_on.png'))
             logging.info('Done!')
             QMessageBox.information(self, "Done!", "Conversion done!")
             self.progress.setValue(0)
