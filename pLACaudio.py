@@ -56,11 +56,12 @@ from mp3Thread import MP3Thread
 from pLogger import PLogger
 from ddButton import DDButtonFrom, DDButtonTo
 from pPref import Preference
+from pSettings import ChangeStyle
 from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar,\
                             QPushButton, QGridLayout, QGroupBox, QFileDialog,\
                             QStyle, QProgressBar, QVBoxLayout, QHBoxLayout,\
-                            QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
-from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime
+                            QComboBox, QMessageBox, QLCDNumber, QLabel
+from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime, QSettings
 from PyQt5.QtGui import QIcon
 from PyQt5 import sip
 
@@ -111,9 +112,14 @@ class App(QWidget):
         self.safe = "QProgressBar::chunk {background-color: #61FF33;}"
         self.myquality = ''
         self.myformat = ''
+        self.settings = QSettings('pLAC', 'pLAC')
         self.initUI()
 
     def initUI(self):
+        # settings
+        dark = self.settings.value('dark', type=int)
+        ChangeStyle(self, dark)
+
         # window title and geometry
         self.setWindowTitle(self.title)
 

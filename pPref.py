@@ -27,10 +27,11 @@ Copyright (c) 2019 Fabrice Zaoui
 License GNU GPL v3
 
 """
+from pSettings import ChangeStyle
 from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5 import Qt
-
+from PyQt5.QtCore import pyqtSlot
 
 class Preference(QMainWindow):
     def __init__(self, parent):
@@ -56,17 +57,13 @@ class Preference(QMainWindow):
         self.btn_ok.resize(150,50)
         self.btn_ok.move(125, 340)
 
+    @pyqtSlot()
     def changeStyle(self):
         if self.style.isChecked():
-            self.parent().setStyleSheet('QWidget { background-color: #2C2F33 ; color: #D9D9D9; selection-color: #D9D9D9; selection-background-color: #2C2F33}')
-            self.parent().danger = "QProgressBar::chunk { background-color: #B90000;}"
-            self.parent().inter = "QProgressBar::chunk { background-color: #B97F00;}"
-            self.parent().safe = "QProgressBar::chunk {background-color: #6D9200;}"
+            ChangeStyle(self.parent(), 1)
         else:
-            self.parent().setStyleSheet('')
-            self.parent().danger = "QProgressBar::chunk { background-color: #FF3633;}"
-            self.parent().inter = "QProgressBar::chunk { background-color: #FFAF33;}"
-            self.parent().safe = "QProgressBar::chunk {background-color: #61FF33;}"
+            ChangeStyle(self.parent(), 0)
+
     def pref_exit(self):
         self.close()
 
