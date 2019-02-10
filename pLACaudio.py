@@ -56,7 +56,10 @@ from mp3Thread import MP3Thread
 from pLogger import PLogger
 from ddButton import DDButtonFrom, DDButtonTo
 from pPref import Preference
-from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar, QPushButton, QGridLayout, QGroupBox, QFileDialog, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
+from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar,\
+                            QPushButton, QGridLayout, QGroupBox, QFileDialog,\
+                            QStyle, QProgressBar, QVBoxLayout, QHBoxLayout,\
+                            QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
 from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime
 from PyQt5.QtGui import QIcon
 from PyQt5 import sip
@@ -157,7 +160,7 @@ class App(QWidget):
         logTextBox = PLogger(self)
         logTextBox.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s -> %(message)s', "%Y-%m-%d %H:%M"))
         logging.getLogger().addHandler(logTextBox)
-        logging.getLogger().setLevel(logging.DEBUG) # default level
+        logging.getLogger().setLevel(logging.DEBUG)  # default level
 
         # LCD
         self.lcd_count.setSegmentStyle(2)
