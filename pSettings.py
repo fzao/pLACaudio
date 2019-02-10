@@ -48,3 +48,11 @@ def ChangeStyle(self, dark=0):
     # save settings
     self.settings.setValue('dark', dark)
 
+
+def ShowLogger(self, log=1):
+    if log == 1:
+        self.grp_log.setVisible(True)
+    else:
+        self.grp_log.setVisible(False)
+    # save settings
+    self.settings.setValue('logger', log)

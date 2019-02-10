@@ -56,10 +56,10 @@ from mp3Thread import MP3Thread
 from pLogger import PLogger
 from ddButton import DDButtonFrom, DDButtonTo
 from pPref import Preference
-from pSettings import ChangeStyle
+from pSettings import ChangeStyle, ShowLogger
 from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar,\
                             QPushButton, QGridLayout, QGroupBox, QFileDialog,\
-                            QStyle, QProgressBar, QVBoxLayout, QHBoxLayout,\
+                            QProgressBar, QVBoxLayout, QHBoxLayout,\
                             QComboBox, QMessageBox, QLCDNumber, QLabel
 from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime, QSettings
 from PyQt5.QtGui import QIcon
@@ -89,6 +89,7 @@ class App(QWidget):
         self.lcd_count = QLCDNumber()
         self.elapsed_time = QLCDNumber()
         self.perf = QLabel()
+        self.grp_log = QGroupBox('logger')
         self.threads = []
         self.nstart = 0
         self.nm1 = 0
@@ -119,6 +120,8 @@ class App(QWidget):
         # settings
         dark = self.settings.value('dark', type=int)
         ChangeStyle(self, dark)
+        log = self.settings.value('logger', type=int)
+        ShowLogger(self, log)
 
         # window title and geometry
         self.setWindowTitle(self.title)
@@ -240,9 +243,8 @@ class App(QWidget):
 
         vlayout5 = QVBoxLayout()
         vlayout5.addWidget(logTextBox.widget)
-        grp_log = QGroupBox('logger')
-        grp_log.setLayout(vlayout5)
-        grp_log.setToolTip('Information')
+        self.grp_log.setLayout(vlayout5)
+        self.grp_log.setToolTip('Information')
 
         vlayout6 = QVBoxLayout()
         vlayout6.addWidget(self.progress)
@@ -256,7 +258,7 @@ class App(QWidget):
         grid.addWidget(grp_io, 1, 0)
         grid.addWidget(grp_codec, 1, 1)
         grid.addWidget(grp_conv, 2, 0, 1, 0)
-        grid.addWidget(grp_log, 3, 0, 1, 0)
+        grid.addWidget(self.grp_log, 3, 0, 1, 0)
         grid.addWidget(grp_pro, 4, 0, 1, 0)
         self.setLayout(grid)
 

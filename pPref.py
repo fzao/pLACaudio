@@ -27,7 +27,7 @@ Copyright (c) 2019 Fabrice Zaoui
 License GNU GPL v3
 
 """
-from pSettings import ChangeStyle
+from pSettings import ChangeStyle, ShowLogger
 from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5 import Qt
@@ -43,6 +43,7 @@ class Preference(QMainWindow):
         self.setFixedSize(400, 400)
         # checkbox (dark theme)
         self.style = QCheckBox('Dark theme', self)
+        self.logger = QCheckBox('Display logger', self)
         # quit button
         self.btn_ok = QPushButton('OK', self)
         self.initUI()
@@ -52,6 +53,10 @@ class Preference(QMainWindow):
         self.style.move(25, 25)
         self.style.resize(200, 50)
         self.style.stateChanged.connect(self.changeStyle)
+        # checkbox (display logger)
+        self.logger.move(25, 75)
+        self.logger.resize(200, 50)
+        self.logger.stateChanged.connect(self.changeLogger)
         # quit button
         self.btn_ok.clicked.connect(self.pref_exit)
         self.btn_ok.resize(150,50)
@@ -63,6 +68,13 @@ class Preference(QMainWindow):
             ChangeStyle(self.parent(), 1)
         else:
             ChangeStyle(self.parent(), 0)
+
+    @pyqtSlot()
+    def changeLogger(self):
+        if self.logger.isChecked():
+            ShowLogger(self.parent(), 1)
+        else:
+            ShowLogger(self.parent(), 0)
 
     def pref_exit(self):
         self.close()
