@@ -19,7 +19,7 @@ pLACaudio runs on a number of cores (conversion in parallel mode) chosen by the 
 
 pLACaudio uses ffMPEG (A complete, cross-platform solution to record, convert and stream audio and video). ffMPEG is a free software and is distributed under the terms of the GNU General Public License v3 see https://www.ffmpeg.org/ for more information).
 
-Three settings of the output quality audio are possible (bit rate values).
+Three settings of the output quality audio are possible (corresponding to different bit rate values for lossy files or compression factors for lossless files).
 
 <p align="center">
   <img src="./img/Windows_win10.png" width="200"/>
