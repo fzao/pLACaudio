@@ -28,7 +28,7 @@ License GNU GPL v3
 
 """
 from pSettings import ChangeStyle, ShowLogger
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QComboBox
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QComboBox, QLabel
 from PyQt5.QtGui import QIcon
 from PyQt5 import Qt
 from PyQt5.QtCore import pyqtSlot
@@ -42,6 +42,7 @@ class Preference(QMainWindow):
         self.setWindowModality(Qt.Qt.WindowModal)
         self.setFixedSize(400, 400)
         # combo (themes)
+        self.txttheme = QLabel('Color theme', self)
         self.style = QComboBox(self)
         # checkbox (view logger)
         self.logger = QCheckBox('Display logger', self)
@@ -51,14 +52,15 @@ class Preference(QMainWindow):
 
     def initUI(self):
         # combo (color theme)
-        self.style.move(25, 25)
+        self.txttheme.move(25,30)
+        self.style.move(25, 60)
         self.style.resize(100, 25)
         self.style.setToolTip('Change the theme color of pLACaudio')
-        self.style.addItem('- Theme')
         self.style.addItems(['Default', 'Dark', 'Gray', 'Rustic', 'Sky', 'Sand', 'Flower', 'Beach'])
+        self.style.setCurrentIndex(self.parent().settings.value('theme', type=int))
         self.style.currentIndexChanged['int'].connect(self.changeStyle)
         # checkbox (display logger)
-        self.logger.move(25, 75)
+        self.logger.move(25, 90)
         self.logger.resize(200, 50)
         if self.parent().grp_log.isVisible():
             self.logger.setCheckState(Qt.Qt.Checked)
