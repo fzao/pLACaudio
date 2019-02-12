@@ -134,9 +134,6 @@ class App(QWidget):
         aboutpLAC = QAction('About', self)
         aboutpLAC.triggered.connect(self.call_info)
         pLAC.addAction(aboutpLAC)
-        quitpLAC = QAction('Quit', self)
-        quitpLAC.triggered.connect(self.closeByButton)
-        pLAC.addAction(quitpLAC)
 
         # button for the folder selection (ALAC)
         self.btn_lossless.setMinimumHeight(50)
@@ -466,12 +463,6 @@ class App(QWidget):
         else:
             event.ignore()
 
-    def closeByButton(self):
-        reply = QMessageBox.question(self, 'Message',
-                                     "Are you sure to quit?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            sys.exit()
 
 if __name__ == '__main__':
     version = '0.3'
