@@ -28,7 +28,7 @@ License GNU GPL v3
 
 """
 from pSettings import ChangeStyle, ShowLogger
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QComboBox
 from PyQt5.QtGui import QIcon
 from PyQt5 import Qt
 from PyQt5.QtCore import pyqtSlot
@@ -42,17 +42,20 @@ class Preference(QMainWindow):
         self.setWindowModality(Qt.Qt.WindowModal)
         self.setFixedSize(400, 400)
         # checkbox (dark theme)
-        self.style = QCheckBox('Dark theme', self)
+        self.style = QComboBox(self)
         self.logger = QCheckBox('Display logger', self)
         # quit button
         self.btn_ok = QPushButton('OK', self)
         self.initUI()
 
     def initUI(self):
-        # checkbox (dark theme)
+        # combo (color theme)
         self.style.move(25, 25)
-        self.style.resize(200, 50)
-        self.style.stateChanged.connect(self.changeStyle)
+        self.style.resize(100, 25)
+        self.style.setToolTip('Change the theme color of pLACaudio')
+        self.style.addItem('- Theme')
+        self.style.addItems(['Default', 'Dark', 'Gray', 'Rustic', 'Sky', 'Sand', 'Flower', 'Beach'])
+        self.style.currentIndexChanged['int'].connect(self.changeStyle)
         # checkbox (display logger)
         self.logger.move(25, 75)
         self.logger.resize(200, 50)
@@ -62,12 +65,9 @@ class Preference(QMainWindow):
         self.btn_ok.resize(150,50)
         self.btn_ok.move(125, 340)
 
-    @pyqtSlot()
-    def changeStyle(self):
-        if self.style.isChecked():
-            ChangeStyle(self.parent(), 1)
-        else:
-            ChangeStyle(self.parent(), 0)
+    @pyqtSlot(int)
+    def changeStyle(self, theme):
+        ChangeStyle(self.parent(), theme)
 
     @pyqtSlot()
     def changeLogger(self):

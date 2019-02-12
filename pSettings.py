@@ -29,24 +29,27 @@ License GNU GPL v3
 """
 
 
-def ChangeStyle(self, dark=0):
-    if dark ==1:
-        # window theme
-        self.setStyleSheet(
-            'QWidget { background-color: #2C2F33 ; color: #D9D9D9; selection-color: #D9D9D9; selection-background-color: #2C2F33}')
-        # cpu color bar
-        self.danger = "QProgressBar::chunk { background-color: #B90000;}"
-        self.inter = "QProgressBar::chunk { background-color: #B97F00;}"
-        self.safe = "QProgressBar::chunk {background-color: #6D9200;}"
-    else:
-        # window theme
+def ChangeStyle(self, theme=0):
+    if theme == 1:  # default
         self.setStyleSheet('')
-        # cpu color bar
-        self.danger = "QProgressBar::chunk { background-color: #FF3633;}"
-        self.inter = "QProgressBar::chunk { background-color: #FFAF33;}"
-        self.safe = "QProgressBar::chunk {background-color: #61FF33;}"
+    elif theme == 2:  # dark
+        self.setStyleSheet('QWidget { background-color: #2C2F33; color: #B2B2B2; selection-color: #B2B2B2; selection-background-color: #787878 }')
+    elif theme == 3:  # gray
+        self.setStyleSheet('QWidget { background-color: #BCBCBE; color: #3E4444; selection-color: #3E4444; selection-background-color: #B2B2B2 } }')
+    elif theme == 4:  # rustic
+        self.setStyleSheet('QWidget { background-color: #563F46; color: #E0E2E4; selection-color: #E0E2E4; selection-background-color: #8CA3A3 }')
+    elif theme == 5:  # sky
+        self.setStyleSheet('QWidget { background-color: #8D9DB6; color: #DAEBE8; selection-color: #DAEBE8; selection-background-color: #667292 }')
+    elif theme == 6:  # sand
+        self.setStyleSheet('QWidget { background-color: #FFF2DF; color: #674D3C; selection-color: #674D3C; selection-background-color: #F4A688 }')
+    elif theme == 7:  # flower
+        self.setStyleSheet('QWidget { background-color: #EEAC99; color: #622569; selection-color: #622569; selection-background-color: #C83349 }')
+    elif theme == 8:  # beach
+        self.setStyleSheet('QWidget { background-color: #588C7E; color: #F2AE72; selection-color: #588C7E; selection-background-color: #96CEB4 }')
+    else:
+        self.setStyleSheet('')
     # save settings
-    self.settings.setValue('dark', dark)
+    self.settings.setValue('theme', theme)
 
 
 def ShowLogger(self, log=1):

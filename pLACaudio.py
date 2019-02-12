@@ -108,9 +108,9 @@ class App(QWidget):
                      'ALAC':{'Low':['0', 'Compression Level: 0'], 'Medium':['1', 'Compression Level: 1'], 'High':['2', 'Compression Level:2']}, \
                      'WAV': {'Low': ['0', 'No Compression'], 'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}, \
                      'AIFF': {'Low': ['0', 'No Compression'],'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}}
-        self.danger = "QProgressBar::chunk { background-color: #FF3633;}"
-        self.inter = "QProgressBar::chunk { background-color: #FFAF33;}"
-        self.safe = "QProgressBar::chunk {background-color: #61FF33;}"
+        self.danger = "QProgressBar::chunk { background-color: #B90000;}"
+        self.inter = "QProgressBar::chunk { background-color: #B97F00;}"
+        self.safe = "QProgressBar::chunk {background-color: #6D9200;}"
         self.myquality = ''
         self.myformat = ''
         self.settings = QSettings('pLAC', 'pLAC')
@@ -118,8 +118,8 @@ class App(QWidget):
 
     def initUI(self):
         # settings
-        dark = self.settings.value('dark', type=int)
-        ChangeStyle(self, dark)
+        theme = self.settings.value('theme', type=int)
+        ChangeStyle(self, theme)
         log = self.settings.value('logger', type=int)
         ShowLogger(self, log)
 
