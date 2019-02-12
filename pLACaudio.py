@@ -128,12 +128,15 @@ class App(QWidget):
 
         # menu bar
         pLAC = self.myQMenuBar.addMenu('pLACaudio')
-        aboutpLAC = QAction('About', self)
-        aboutpLAC.triggered.connect(self.call_info)
-        pLAC.addAction(aboutpLAC)
         prefpLAC = QAction('Preferences', self)
         prefpLAC.triggered.connect(self.call_pref)
         pLAC.addAction(prefpLAC)
+        aboutpLAC = QAction('About', self)
+        aboutpLAC.triggered.connect(self.call_info)
+        pLAC.addAction(aboutpLAC)
+        quitpLAC = QAction('Quit', self)
+        quitpLAC.triggered.connect(self.closeByButton)
+        pLAC.addAction(quitpLAC)
 
         # button for the folder selection (ALAC)
         self.btn_lossless.setMinimumHeight(50)
@@ -454,6 +457,21 @@ class App(QWidget):
             sec = int((totsec % 3600) % 60)
             self.elapsed_time.display('%03d:%02d:%02d' % (h, m, sec))
 
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, 'Message',
+                                     "Are you sure to quit?", QMessageBox.Yes |
+                                     QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
+    def closeByButton(self):
+        reply = QMessageBox.question(self, 'Message',
+                                     "Are you sure to quit?", QMessageBox.Yes |
+                                     QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            sys.exit()
 
 if __name__ == '__main__':
     version = '0.3'
