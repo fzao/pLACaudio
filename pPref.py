@@ -41,8 +41,9 @@ class Preference(QMainWindow):
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setWindowModality(Qt.Qt.WindowModal)
         self.setFixedSize(400, 400)
-        # checkbox (dark theme)
+        # combo (themes)
         self.style = QComboBox(self)
+        # checkbox (view logger)
         self.logger = QCheckBox('Display logger', self)
         # quit button
         self.btn_ok = QPushButton('OK', self)
@@ -59,6 +60,10 @@ class Preference(QMainWindow):
         # checkbox (display logger)
         self.logger.move(25, 75)
         self.logger.resize(200, 50)
+        if self.parent().grp_log.isVisible():
+            self.logger.setCheckState(Qt.Qt.Checked)
+        else:
+            self.logger.setCheckState(Qt.Qt.Unchecked)
         self.logger.stateChanged.connect(self.changeLogger)
         # quit button
         self.btn_ok.clicked.connect(self.pref_exit)
