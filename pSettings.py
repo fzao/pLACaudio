@@ -30,21 +30,21 @@ License GNU GPL v3
 
 
 def ChangeStyle(self, theme=0):
-    if theme == 1:  # default
+    if theme == 0:  # default
         self.setStyleSheet('')
-    elif theme == 2:  # dark
+    elif theme == 1:  # dark
         self.setStyleSheet('QWidget { background-color: #2C2F33; color: #B2B2B2; selection-color: #B2B2B2; selection-background-color: #787878 }')
-    elif theme == 3:  # gray
+    elif theme == 2:  # gray
         self.setStyleSheet('QWidget { background-color: #BCBCBE; color: #3E4444; selection-color: #3E4444; selection-background-color: #B2B2B2 } }')
-    elif theme == 4:  # rustic
+    elif theme == 3:  # rustic
         self.setStyleSheet('QWidget { background-color: #563F46; color: #E0E2E4; selection-color: #E0E2E4; selection-background-color: #8CA3A3 }')
-    elif theme == 5:  # sky
+    elif theme == 4:  # sky
         self.setStyleSheet('QWidget { background-color: #8D9DB6; color: #DAEBE8; selection-color: #DAEBE8; selection-background-color: #667292 }')
-    elif theme == 6:  # sand
+    elif theme == 5:  # sand
         self.setStyleSheet('QWidget { background-color: #FFF2DF; color: #674D3C; selection-color: #674D3C; selection-background-color: #F4A688 }')
-    elif theme == 7:  # flower
+    elif theme == 6:  # flower
         self.setStyleSheet('QWidget { background-color: #EEAC99; color: #622569; selection-color: #622569; selection-background-color: #C83349 }')
-    elif theme == 8:  # beach
+    elif theme == 7:  # beach
         self.setStyleSheet('QWidget { background-color: #588C7E; color: #F2AE72; selection-color: #588C7E; selection-background-color: #96CEB4 }')
     else:
         self.setStyleSheet('')
