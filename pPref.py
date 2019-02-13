@@ -28,7 +28,7 @@ License GNU GPL v3
 
 """
 from pSettings import ChangeStyle, ShowLogger
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QComboBox, QLabel
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QIcon
 from PyQt5 import Qt
 from PyQt5.QtCore import pyqtSlot
@@ -41,27 +41,34 @@ class Preference(QMainWindow):
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setWindowModality(Qt.Qt.WindowModal)
         self.setFixedSize(400, 400)
-        # combo (themes)
-        self.txttheme = QLabel('Color theme', self)
-        self.style = QComboBox(self)
+        # radio button (color themes)
+        txttheme = QLabel('Color theme : ', self)
+        txttheme.move(10, 10)
+        self.b1 = QRadioButton("Default", self)
+        self.b1.toggled.connect(lambda: self.btnstate(self.b1))
+        self.b1.move(30, 40)
+        self.b2 = QRadioButton("Dark", self)
+        self.b2.toggled.connect(lambda: self.btnstate(self.b2))
+        self.b2.move(130, 40)
+        if self.parent().theme == 0:
+            self.b1.setChecked(True)
+            self.b2.setChecked(False)
+        else:
+            self.b2.setChecked(True)
+            self.b1.setChecked(False)
         # checkbox (view logger)
-        self.logger = QCheckBox('Display logger', self)
+        txtlog = QLabel('Logger : ', self)
+        txtlog.move(10, 80)
+        self.logger = QCheckBox('Display', self)
+        self.logger.move(30, 110)
         # quit button
         self.btn_ok = QPushButton('OK', self)
+        self.btn_ok.resize(150,50)
+        self.btn_ok.move(125, 340)
         self.initUI()
 
     def initUI(self):
-        # combo (color theme)
-        self.txttheme.move(25,30)
-        self.style.move(25, 60)
-        self.style.resize(100, 25)
-        self.style.setToolTip('Change the theme color of pLACaudio')
-        self.style.addItems(['Default', 'Dark'])
-        self.style.setCurrentIndex(self.parent().settings.value('theme', type=int))
-        self.style.currentIndexChanged['int'].connect(self.changeStyle)
         # checkbox (display logger)
-        self.logger.move(25, 90)
-        self.logger.resize(200, 50)
         if self.parent().grp_log.isVisible():
             self.logger.setCheckState(Qt.Qt.Checked)
         else:
@@ -69,11 +76,19 @@ class Preference(QMainWindow):
         self.logger.stateChanged.connect(self.changeLogger)
         # quit button
         self.btn_ok.clicked.connect(self.pref_exit)
-        self.btn_ok.resize(150,50)
-        self.btn_ok.move(125, 340)
 
-    @pyqtSlot(int)
-    def changeStyle(self, theme):
+    @pyqtSlot()
+    def btnstate(self, b):
+        if b.text() == 'Default':
+            if b.isChecked() is True:
+                theme = 0
+            else:
+                theme = 1
+        if b.text() == "Dark":
+            if b.isChecked() is True:
+                theme = 1
+            else:
+                theme = 0
         ChangeStyle(self.parent(), theme)
 
     @pyqtSlot()

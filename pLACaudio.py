@@ -114,12 +114,12 @@ class App(QWidget):
         self.myquality = ''
         self.myformat = ''
         self.settings = QSettings('pLAC', 'pLAC')
+        self.theme = self.settings.value('theme', type=int)
         self.initUI()
 
     def initUI(self):
         # settings
-        theme = self.settings.value('theme', type=int)
-        ChangeStyle(self, theme)
+        ChangeStyle(self, self.theme)
         log = self.settings.value('logger', type=int)
         ShowLogger(self, log)
 
