@@ -116,6 +116,7 @@ class App(QWidget):
         self.myformat = ''
         self.settings = QSettings('pLAC', 'pLAC')
         self.theme = self.settings.value('theme', type=int)
+        self.poweroff = self.settings.value('poweroff', type=int)
         self.initUI()
 
     def initUI(self):
@@ -412,12 +413,17 @@ class App(QWidget):
             self.btn_start.setEnabled(True)
             self.btn_start.setIcon(QIcon('./icon/play_on.png'))
             logging.info('Done!')
-            QMessageBox.information(self, "Done!", "Conversion done!")
-            self.progress.setValue(0)
-            self.lcd_count.display(0)
-            self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
-            self.perf.setText('speed:0 files/sec\t(mean: 0.0)')
-            self.perfmean = []
+            if self.poweroff == 0:
+                QMessageBox.information(self, "Done!", "Conversion done!")
+                self.progress.setValue(0)
+                self.lcd_count.display(0)
+                self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
+                self.perf.setText('speed:0 files/sec\t(mean: 0.0)')
+                self.perfmean = []
+            elif self.poweroff == 1:
+                self.app.quit()
+            else:
+                pass
 
     def update_progress_bar(self):
         self.progress.setValue(self.progress.value() + 1)

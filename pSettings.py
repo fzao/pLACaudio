@@ -51,3 +51,8 @@ def ShowLogger(self, log=1):
         self.resize(480, 440)
     # save settings
     self.settings.setValue('logger', log)
+
+def Shutdown(self, poweroff=0):
+    self.poweroff = poweroff
+    # save settings
+    self.settings.setValue('poweroff', poweroff)

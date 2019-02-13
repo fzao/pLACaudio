@@ -27,8 +27,8 @@ Copyright (c) 2019 Fabrice Zaoui
 License GNU GPL v3
 
 """
-from pSettings import ChangeStyle, ShowLogger
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel, QHBoxLayout, QVBoxLayout
+from pSettings import ChangeStyle, ShowLogger, Shutdown
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel
 from PyQt5.QtGui import QIcon
 from PyQt5 import Qt
 from PyQt5.QtCore import pyqtSlot
@@ -61,6 +61,12 @@ class Preference(QMainWindow):
         txtlog.move(10, 80)
         self.logger = QCheckBox('Display', self)
         self.logger.move(30, 110)
+        # checkbox (shutdown)
+        txtpwoff = QLabel('Shutdown after conversion : ', self)
+        txtpwoff.setMinimumWidth(200)
+        txtpwoff.move(10, 150)
+        self.pwoff = QCheckBox('Power off', self)
+        self.pwoff.move(30, 180)
         # quit button
         self.btn_ok = QPushButton('OK', self)
         self.btn_ok.resize(150,50)
@@ -74,6 +80,14 @@ class Preference(QMainWindow):
         else:
             self.logger.setCheckState(Qt.Qt.Unchecked)
         self.logger.stateChanged.connect(self.changeLogger)
+
+        # checkbox (shutdown)
+        if self.parent().poweroff == 1:
+            self.pwoff.setCheckState(Qt.Qt.Checked)
+        else:
+            self.pwoff.setCheckState(Qt.Qt.Unchecked)
+        self.pwoff.stateChanged.connect(self.poweroff)
+
         # quit button
         self.btn_ok.clicked.connect(self.pref_exit)
 
@@ -97,6 +111,13 @@ class Preference(QMainWindow):
             ShowLogger(self.parent(), 1)
         else:
             ShowLogger(self.parent(), 0)
+
+    @pyqtSlot()
+    def poweroff(self):
+        if self.pwoff.isChecked():
+            Shutdown(self.parent(), 1)
+        else:
+            Shutdown(self.parent(), 0)
 
     def pref_exit(self):
         self.close()
