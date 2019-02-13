@@ -44,5 +44,10 @@ def ShowLogger(self, log=1):
         self.grp_log.setVisible(True)
     else:
         self.grp_log.setVisible(False)
+    self.app.processEvents()
+    if self.grp_log.isVisible():
+        self.resize(480, 640)
+    else:
+        self.resize(480, 440)
     # save settings
     self.settings.setValue('logger', log)

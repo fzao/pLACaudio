@@ -69,6 +69,7 @@ from PyQt5 import sip
 class App(QWidget):
     def __init__(self):
         super().__init__()
+        self.app = app
         self.myQMenuBar = QMenuBar(self)
         self.title = 'pLACaudio ' + version
         self.setWindowIcon(QIcon('./icon/beer.ico'))
