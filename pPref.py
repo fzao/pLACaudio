@@ -56,7 +56,7 @@ class Preference(QMainWindow):
         self.style.move(25, 60)
         self.style.resize(100, 25)
         self.style.setToolTip('Change the theme color of pLACaudio')
-        self.style.addItems(['Default', 'Dark', 'Gray', 'Rustic', 'Sky', 'Sand', 'Flower', 'Beach'])
+        self.style.addItems(['Default', 'Dark'])
         self.style.setCurrentIndex(self.parent().settings.value('theme', type=int))
         self.style.currentIndexChanged['int'].connect(self.changeStyle)
         # checkbox (display logger)
