@@ -62,7 +62,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar,\
                             QProgressBar, QVBoxLayout, QHBoxLayout,\
                             QComboBox, QMessageBox, QLCDNumber, QLabel
 from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime, QSettings
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPalette
 from PyQt5 import sip
 
 
@@ -129,6 +129,9 @@ class App(QWidget):
         self.setWindowTitle(self.title)
 
         # menu bar
+        print(self.btn_lossless.palette().color(QPalette.Background).name())
+        self.myQMenuBar.setStyleSheet("QMenuBar::item { background-color: #f0f0f0; }")
+
         pLAC = self.myQMenuBar.addMenu('pLACaudio')
         prefpLAC = QAction('Preferences', self)
         prefpLAC.triggered.connect(self.call_pref)
