@@ -129,8 +129,9 @@ class App(QWidget):
         self.setWindowTitle(self.title)
 
         # menu bar
-        print(self.btn_lossless.palette().color(QPalette.Background).name())
-        self.myQMenuBar.setStyleSheet("QMenuBar::item { background-color: #f0f0f0; }")
+        #print(self.btn_lossless.palette().color(QPalette.Background).name())
+        #self.myQMenuBar.setStyleSheet("QMenuBar::item { background-color: #f0f0f0; }")
+        self.myQMenuBar.setMaximumWidth(105)
 
         pLAC = self.myQMenuBar.addMenu('pLACaudio')
         prefpLAC = QAction('Preferences', self)
