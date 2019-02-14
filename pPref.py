@@ -42,7 +42,7 @@ class Preference(QMainWindow):
         self.setWindowTitle('Settings')
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setWindowModality(Qt.Qt.WindowModal)
-        self.setFixedSize(300, 400)
+        self.setFixedSize(350, 400)
 
         # bold font
         myFont = QFont()
@@ -86,7 +86,7 @@ class Preference(QMainWindow):
         # quit button
         self.btn_ok = QPushButton('OK', self)
         self.btn_ok.resize(150,50)
-        self.btn_ok.move(75, 340)
+        self.btn_ok.move(100, 340)
         self.initUI()
 
     def initUI(self):
