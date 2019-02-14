@@ -27,22 +27,30 @@ Copyright (c) 2019 Fabrice Zaoui
 License GNU GPL v3
 
 """
+import logging
 from pSettings import ChangeStyle, ShowLogger, Shutdown
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel, QComboBox
+from PyQt5.QtGui import QIcon, QFont
 from PyQt5 import Qt
 from PyQt5.QtCore import pyqtSlot
 
 class Preference(QMainWindow):
     def __init__(self, parent):
         super(Preference, self).__init__(parent)
+
         # window
-        self.setWindowTitle('Preferences')
+        self.setWindowTitle('Settings')
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setWindowModality(Qt.Qt.WindowModal)
-        self.setFixedSize(400, 400)
+        self.setFixedSize(300, 400)
+
+        # bold font
+        myFont = QFont()
+        myFont.setBold(True)
+
         # radio button (color themes)
         txttheme = QLabel('Color theme : ', self)
+        txttheme.setFont(myFont)
         txttheme.move(10, 10)
         self.b1 = QRadioButton("Default", self)
         self.b1.toggled.connect(lambda: self.btnstate(self.b1))
@@ -56,21 +64,29 @@ class Preference(QMainWindow):
         else:
             self.b2.setChecked(True)
             self.b1.setChecked(False)
+
         # checkbox (view logger)
         txtlog = QLabel('Logger : ', self)
+        txtlog.setFont(myFont)
         txtlog.move(10, 80)
         self.logger = QCheckBox('Display', self)
         self.logger.move(30, 110)
-        # checkbox (shutdown)
-        txtpwoff = QLabel('Shutdown after conversion : ', self)
+
+        # combo (shutdown)
+        txtpwoff = QLabel('After conversion : ', self)
+        txtpwoff.setFont(myFont)
         txtpwoff.setMinimumWidth(200)
         txtpwoff.move(10, 150)
-        self.pwoff = QCheckBox('Power off', self)
+        self.pwoff = QComboBox(self)
+        self.pwoff.addItems(['Wait', 'Quit', 'Power-off'])
+        self.pwoff.currentIndexChanged['int'].connect(self.poweroff)
+        self.pwoff.setMinimumWidth(125)
         self.pwoff.move(30, 180)
+
         # quit button
         self.btn_ok = QPushButton('OK', self)
         self.btn_ok.resize(150,50)
-        self.btn_ok.move(125, 340)
+        self.btn_ok.move(75, 340)
         self.initUI()
 
     def initUI(self):
@@ -81,12 +97,8 @@ class Preference(QMainWindow):
             self.logger.setCheckState(Qt.Qt.Unchecked)
         self.logger.stateChanged.connect(self.changeLogger)
 
-        # checkbox (shutdown)
-        if self.parent().poweroff == 1:
-            self.pwoff.setCheckState(Qt.Qt.Checked)
-        else:
-            self.pwoff.setCheckState(Qt.Qt.Unchecked)
-        self.pwoff.stateChanged.connect(self.poweroff)
+        # combo (after conversion)
+        self.pwoff.setCurrentIndex(self.parent().poweroff)
 
         # quit button
         self.btn_ok.clicked.connect(self.pref_exit)
@@ -96,11 +108,13 @@ class Preference(QMainWindow):
         if b.text() == 'Default':
             if b.isChecked() is True:
                 theme = 0
+                logging.info('the color theme is the default one')
             else:
                 theme = 1
         if b.text() == "Dark":
             if b.isChecked() is True:
                 theme = 1
+                logging.info('the dark theme is selected')
             else:
                 theme = 0
         ChangeStyle(self.parent(), theme)
@@ -109,15 +123,20 @@ class Preference(QMainWindow):
     def changeLogger(self):
         if self.logger.isChecked():
             ShowLogger(self.parent(), 1)
+            logging.info('logger is visible')
         else:
             ShowLogger(self.parent(), 0)
+            logging.info('logger is not shown')
 
-    @pyqtSlot()
-    def poweroff(self):
-        if self.pwoff.isChecked():
-            Shutdown(self.parent(), 1)
-        else:
-            Shutdown(self.parent(), 0)
+    @pyqtSlot(int)
+    def poweroff(self, value):
+        if value == 0:
+            logging.info('after the conversion pLACaudio will wait')
+        elif value == 1:
+            logging.info('after the conversion pLACaudio will quit')
+        elif value == 2:
+            logging.info('after the conversion pLACaudio will shutdown the computer')
+        Shutdown(self.parent(), value)
 
     def pref_exit(self):
         self.close()

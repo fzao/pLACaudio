@@ -353,6 +353,7 @@ class App(QWidget):
         # start time
         self.start_time = QDateTime().currentDateTime().toPyDateTime()
         # is the list full?
+        listofFiles(self)
         if len(self.audio_files) == 0:
             return
         # Thread execution
@@ -397,6 +398,9 @@ class App(QWidget):
                 self.perf.setText('speed:0 files/sec\t(mean: 0.0)')
                 self.perfmean = []
             elif self.poweroff == 1:
+                self.app.quit()
+            elif self.poweroff == 2:
+                os.system('shutdown -h now')
                 self.app.quit()
             else:
                 pass
