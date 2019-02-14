@@ -134,7 +134,7 @@ class App(QWidget):
         self.myQMenuBar.setMaximumWidth(105)
 
         pLAC = self.myQMenuBar.addMenu('pLACaudio')
-        prefpLAC = QAction('Preferences', self)
+        prefpLAC = QAction('Settings', self)
         prefpLAC.triggered.connect(self.call_pref)
         pLAC.addAction(prefpLAC)
         aboutpLAC = QAction('About', self)
