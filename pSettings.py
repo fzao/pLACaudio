@@ -31,6 +31,7 @@ import qdarkstyle
 
 
 def ChangeStyle(self, theme=0):
+    self.theme = theme
     if theme == 0:  # default
         self.setStyleSheet('')
     elif theme == 1:  # dark

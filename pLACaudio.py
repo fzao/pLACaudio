@@ -400,8 +400,11 @@ class App(QWidget):
             elif self.poweroff == 1:
                 self.app.quit()
             elif self.poweroff == 2:
-                os.system('shutdown -h now')
-                self.app.quit()
+                if os.name == 'nt':  # Windows specific
+                    os.system('shutdown /s /f')
+                else:
+                    os.system('shutdown -h now')
+                self.app.quit()  # !?
             else:
                 pass
 
