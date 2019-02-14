@@ -29,6 +29,7 @@ License GNU GPL v3
 """
 import os
 import logging
+from listFiles import listofFiles
 from PyQt5.QtWidgets import QPushButton
 
 
@@ -52,6 +53,8 @@ class DDButtonFrom(QPushButton):
                 if os.path.isdir(url.toLocalFile()):
                     self.parent().parent().lossless_folder = url.toLocalFile()
                     logging.info('from folder: ' + self.parent().parent().lossless_folder)
+                    # get the list of all files to convert
+                    listofFiles(self.parent().parent())
             event.acceptProposedAction()
         else:
             super(DDButtonFrom,self).dropEvent(event)

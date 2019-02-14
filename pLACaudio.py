@@ -48,7 +48,6 @@ License GNU GPL v3
 
 import os
 import sys
-import glob
 import multiprocessing as mp
 import psutil
 import logging
@@ -57,6 +56,7 @@ from pLogger import PLogger
 from ddButton import DDButtonFrom, DDButtonTo
 from pPref import Preference
 from pSettings import ChangeStyle, ShowLogger
+from listFiles import listofFiles
 from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar,\
                             QPushButton, QGridLayout, QGroupBox, QFileDialog,\
                             QProgressBar, QVBoxLayout, QHBoxLayout,\
@@ -76,6 +76,7 @@ class App(QWidget):
         self.setBaseSize(480, 640)
         self.lossless_folder = ''
         self.lossy_location = ''
+        self.audio_files = []
         self.ncpu = 0
         self.btn_lossless = DDButtonFrom(self)
         self.btn_lossless.setText('FLAC / ALAC / DSF / WAV / AIFF')
@@ -129,8 +130,8 @@ class App(QWidget):
         self.setWindowTitle(self.title)
 
         # menu bar
-        #print(self.btn_lossless.palette().color(QPalette.Background).name())
-        #self.myQMenuBar.setStyleSheet("QMenuBar::item { background-color: #f0f0f0; }")
+        colorcode = self.btn_lossless.palette().color(QPalette.Background).name()
+        self.myQMenuBar.setStyleSheet("QMenuBar::item { background-color: " + colorcode + "; }")
         self.myQMenuBar.setMaximumWidth(105)
 
         pLAC = self.myQMenuBar.addMenu('pLACaudio')
@@ -274,20 +275,22 @@ class App(QWidget):
     @pyqtSlot()
     def on_click_alac(self):
         self.lossless_folder = QFileDialog.getExistingDirectory(self, 'Select Folder')
-        if os.name == 'nt':  # Windows specific
-            self.lossless_folder = self.lossless_folder.replace('/', '\\')
-        logging.info('from folder: ' + self.lossless_folder)
         if self.lossless_folder != '':
+            if os.name == 'nt':  # Windows specific
+                self.lossless_folder = self.lossless_folder.replace('/', '\\')
             self.btn_lossless.setToolTip(self.lossless_folder)
+            logging.info('from folder: ' + self.lossless_folder)
+            # get the list of all files to convert
+            listofFiles(self)
 
     @pyqtSlot()
     def on_click_mp3(self):
         self.lossy_location = QFileDialog.getExistingDirectory(self, 'Select Folder')
-        if os.name == 'nt':  # Windows specific
-            self.lossy_location = self.lossy_location.replace('/', '\\')
-        logging.info('to folder: ' + self.lossy_location)
         if self.lossy_location != '':
+            if os.name == 'nt':  # Windows specific
+                self.lossy_location = self.lossy_location.replace('/', '\\')
             self.btn_lossy.setToolTip(self.lossy_location)
+            logging.info('to folder: ' + self.lossy_location)
 
     @pyqtSlot()
     def call_info(self):
@@ -295,7 +298,6 @@ class App(QWidget):
 
     @pyqtSlot()
     def call_pref(self):
-        #QMessageBox.information(self, "Preferences", "Si on veut!")
         self.pref = Preference(self)
         self.pref.show()
 
@@ -350,42 +352,12 @@ class App(QWidget):
                 self.myquality = 'Low'  # WAV and AIFF (no compression)
         # start time
         self.start_time = QDateTime().currentDateTime().toPyDateTime()
-        # get the list of all files to convert
-        ext = 'm4a'
-        audio_alac = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'flac'
-        audio_flac = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'dsf'
-        audio_dsf = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'wav'
-        audio_wav = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'aif'
-        audio_aiff1 = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'aiff'
-        audio_aiff2 = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        audio_aiff = audio_aiff1 + audio_aiff2
-        audio_files = audio_alac + audio_flac + audio_dsf + audio_wav + audio_aiff
-        # Number of files found
-        if len(audio_files) == 0:
-            logging.error('No files found!')
-            QMessageBox.warning(self, 'Warning', 'No lossless files found!')
+        # is the list full?
+        if len(self.audio_files) == 0:
             return
-        else:
-            logging.info('Number of ALAC files: ' + str(len(audio_alac)))
-            logging.info('Number of FLAC files: ' + str(len(audio_flac)))
-            logging.info('Number of DSF files: ' + str(len(audio_dsf)))
-            logging.info('Number of WAV files: ' + str(len(audio_wav)))
-            logging.info('Number of AIFF files: ' + str(len(audio_aiff)))
-            logging.info('Total number of files: ' + str(len(audio_files)))
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(len(audio_files) - 1)
-        self.progress.setValue(0)
-        self.lcd_count.display(len(audio_files))
-        self.nm1 = len(audio_files)
-        self.n0 = len(audio_files)
         # Thread execution
-        n = min(self.ncpu, len(audio_files))
-        audio = [audio_files[i * n:(i + 1) * n] for i in range((len(audio_files) + n - 1) // n)]
+        n = min(self.ncpu, len(self.audio_files))
+        audio = [self.audio_files[i * n:(i + 1) * n] for i in range((len(self.audio_files) + n - 1) // n)]
         audio_end = []
         if len(audio) > 1:
             audio_end = audio.pop(-1)
@@ -412,12 +384,12 @@ class App(QWidget):
     def done(self):
         self.nstart -= 1
         if self.nstart == 0:
-            self.btn_stop.setEnabled(False)
-            self.btn_stop.setIcon(QIcon('./icon/stop_off.png'))
-            self.btn_start.setEnabled(True)
-            self.btn_start.setIcon(QIcon('./icon/play_on.png'))
             logging.info('Done!')
             if self.poweroff == 0:
+                self.btn_stop.setEnabled(False)
+                self.btn_stop.setIcon(QIcon('./icon/stop_off.png'))
+                self.btn_start.setEnabled(True)
+                self.btn_start.setIcon(QIcon('./icon/play_on.png'))
                 QMessageBox.information(self, "Done!", "Conversion done!")
                 self.progress.setValue(0)
                 self.lcd_count.display(0)
