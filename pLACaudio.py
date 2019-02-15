@@ -158,6 +158,7 @@ class App(QWidget):
         tray_menu.addAction(quit_action)
         self.tray_icon.setContextMenu(tray_menu)
         self.tray_icon.setIcon(QIcon('./icon/beer.ico'))
+        self.tray_icon.activated.connect(self.iconActivated)
         if self.trayicon != 0:
             self.tray_icon.show()
         else:
@@ -524,6 +525,19 @@ class App(QWidget):
                 self.app.quit()
         else:
             self.app.quit()
+
+
+    def iconActivated(self, reason):
+        if reason in (QSystemTrayIcon.Trigger, QSystemTrayIcon.DoubleClick):
+            self.show()
+        elif reason == QSystemTrayIcon.MiddleClick:
+            if self.nstart > 0:
+                percent = (self.progress.value() - self.progress.minimum()) / (self.progress.maximum() - self.progress.minimum())
+                percent = percent * 100
+                self.tray_icon.showMessage("pLACaudio",
+                    "Progress: " + "{0:0.1f}".format(percent) + ' %',
+                    QSystemTrayIcon.Information,
+                    2000)
 
 
 if __name__ == '__main__':
