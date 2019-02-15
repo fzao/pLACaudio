@@ -71,7 +71,7 @@ class App(QWidget):
         super().__init__()
         self.app = app
         self.myQMenuBar = QMenuBar(self)
-        self.title = 'pLACaudio ' + version
+        self.title = 'pLACaudio Transcoder'
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setBaseSize(480, 640)
         self.lossless_folder = ''
