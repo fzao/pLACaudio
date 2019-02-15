@@ -294,7 +294,7 @@ class App(QWidget):
 
     @pyqtSlot()
     def call_info(self):
-        QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio'>pLACaudio v" + version + " </a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
+        QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio' style='color:#32C896'>pLACaudio v" + version + " </a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
 
     @pyqtSlot()
     def call_pref(self):
