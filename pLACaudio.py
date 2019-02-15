@@ -453,14 +453,16 @@ class App(QWidget):
             self.elapsed_time.display('%03d:%02d:%02d' % (h, m, sec))
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Message',
-                                     "Are you sure to quit?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            event.accept()
+        if self.nstart > 0:  # conversion still in progress
+            reply = QMessageBox.question(self, 'Message',
+                                         "Conversion is still in progress. Are you sure to quit?", QMessageBox.Yes |
+                                         QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                event.accept()
+            else:
+                event.ignore()
         else:
-            event.ignore()
-
+            event.accept()
 
 if __name__ == '__main__':
     version = '0.3'
