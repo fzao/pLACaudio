@@ -404,6 +404,12 @@ class App(QWidget):
             self.nstart += 1
             self.btn_stop.clicked.connect(self.threads[i].terminate)
         logging.info('Conversion in progress...')
+        self.tray_icon.showMessage(
+            "pLACaudio",
+            "Conversion has just started...",
+            QSystemTrayIcon.Information,
+            5000
+        )
         self.btn_stop.setEnabled(True)
         self.btn_stop.setIcon(QIcon('./icon/stop_on.png'))
         self.btn_start.setEnabled(False)
@@ -419,12 +425,19 @@ class App(QWidget):
                 self.btn_stop.setIcon(QIcon('./icon/stop_off.png'))
                 self.btn_start.setEnabled(True)
                 self.btn_start.setIcon(QIcon('./icon/play_on.png'))
-                QMessageBox.information(self, "Done!", "Conversion done!")
+                if not self.isHidden():
+                    QMessageBox.information(self, "Done!", "Conversion done!")
                 self.progress.setValue(0)
                 self.lcd_count.display(0)
                 self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
                 self.perf.setText('speed:0 files/sec\t(mean: 0.0)')
                 self.perfmean = []
+                self.tray_icon.showMessage(
+                    "pLACaudio",
+                    "Conversion just ended!",
+                    QSystemTrayIcon.Information,
+                    5000
+                )
             elif self.poweroff == 1:
                 self.app.quit()
             elif self.poweroff == 2:
@@ -486,7 +499,7 @@ class App(QWidget):
                 "pLACaudio",
                 "was minimized to Tray",
                 QSystemTrayIcon.Information,
-                3000
+                5000
             )
         else:
             if self.nstart > 0:  # conversion still in progress
