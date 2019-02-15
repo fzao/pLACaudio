@@ -28,7 +28,7 @@ License GNU GPL v3
 
 """
 import logging
-from pSettings import ChangeStyle, ShowLogger, Shutdown
+from pSettings import ChangeStyle, ShowLogger, ShowTrayIcon, Shutdown
 from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel, QComboBox
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5 import Qt
@@ -68,20 +68,30 @@ class Preference(QMainWindow):
         # checkbox (view logger)
         txtlog = QLabel('Logger : ', self)
         txtlog.setFont(myFont)
-        txtlog.move(10, 80)
+        txtlog.move(10, 90)
         self.logger = QCheckBox('Display', self)
-        self.logger.move(30, 110)
+        self.logger.move(30, 120)
 
         # combo (shutdown)
         txtpwoff = QLabel('After conversion : ', self)
         txtpwoff.setFont(myFont)
         txtpwoff.setMinimumWidth(200)
-        txtpwoff.move(10, 150)
+        txtpwoff.move(10, 170)
         self.pwoff = QComboBox(self)
         self.pwoff.addItems(['Wait', 'Quit', 'Power-off'])
         self.pwoff.currentIndexChanged['int'].connect(self.poweroff)
         self.pwoff.setMinimumWidth(125)
-        self.pwoff.move(30, 180)
+        self.pwoff.move(30, 200)
+
+        # checkbox (tray icon)
+        txttray = QLabel('System tray icon : ', self)
+        txttray.setFont(myFont)
+        txttray.setMinimumWidth(150)
+        txttray.setToolTip('Keep in the background when the main window is closed')
+        txttray.move(10, 250)
+        self.tray = QCheckBox('Use and Show', self)
+        self.tray.setMinimumWidth(150)
+        self.tray.move(30, 280)
 
         # quit button
         self.btn_ok = QPushButton('OK', self)
@@ -96,6 +106,13 @@ class Preference(QMainWindow):
         else:
             self.logger.setCheckState(Qt.Qt.Unchecked)
         self.logger.stateChanged.connect(self.changeLogger)
+
+        # checkbox (tray icon)
+        if self.parent().trayicon != 0:
+            self.tray.setCheckState(Qt.Qt.Checked)
+        else:
+            self.tray.setCheckState(Qt.Qt.Unchecked)
+        self.tray.stateChanged.connect(self.changeTrayIcon)
 
         # combo (after conversion)
         self.pwoff.setCurrentIndex(self.parent().poweroff)
@@ -127,6 +144,15 @@ class Preference(QMainWindow):
         else:
             ShowLogger(self.parent(), 0)
             logging.info('logger is not shown')
+
+    @pyqtSlot()
+    def changeTrayIcon(self):
+        if self.tray.isChecked():
+            ShowTrayIcon(self.parent(), 1)
+            logging.info('Tray icon is enabled')
+        else:
+            ShowTrayIcon(self.parent(), 0)
+            logging.info('Tray icon is disabled')
 
     @pyqtSlot(int)
     def poweroff(self, value):

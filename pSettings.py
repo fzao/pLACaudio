@@ -54,6 +54,15 @@ def ShowLogger(self, log=1):
     self.settings.setValue('logger', log)
 
 
+def ShowTrayIcon(self, tray=0):
+    self.trayicon = tray
+    if tray == 1:
+        self.tray_icon.show()
+    else:
+        self.tray_icon.hide()
+    # save settings
+    self.settings.setValue('trayicon', tray)
+
 def Shutdown(self, poweroff=0):
     self.poweroff = poweroff
     # save settings

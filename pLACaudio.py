@@ -60,7 +60,7 @@ from listFiles import listofFiles
 from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar,\
                             QPushButton, QGridLayout, QGroupBox, QFileDialog,\
                             QProgressBar, QVBoxLayout, QHBoxLayout,\
-                            QComboBox, QMessageBox, QLCDNumber, QLabel
+                            QComboBox, QMessageBox, QLCDNumber, QLabel, QSystemTrayIcon, QMenu
 from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime, QSettings
 from PyQt5.QtGui import QIcon, QPalette
 from PyQt5 import sip
@@ -92,6 +92,7 @@ class App(QWidget):
         self.elapsed_time = QLCDNumber()
         self.perf = QLabel()
         self.grp_log = QGroupBox('logger')
+        self.tray_icon = QSystemTrayIcon(self)
         self.threads = []
         self.nstart = 0
         self.nm1 = 0
@@ -118,6 +119,7 @@ class App(QWidget):
         self.settings = QSettings('pLAC', 'pLAC')
         self.theme = self.settings.value('theme', type=int)
         self.poweroff = self.settings.value('poweroff', type=int)
+        self.trayicon = self.settings.value('trayicon', type=int)
         self.initUI()
 
     def initUI(self):
@@ -141,6 +143,25 @@ class App(QWidget):
         aboutpLAC = QAction('About', self)
         aboutpLAC.triggered.connect(self.call_info)
         pLAC.addAction(aboutpLAC)
+
+        # tray icon
+        show_action = QAction("Show", self)
+        hide_action = QAction("Hide", self)
+        quit_action = QAction("Exit", self)
+        show_action.triggered.connect(self.show)
+        hide_action.triggered.connect(self.hide)
+        quit_action.triggered.connect(self.pLACexit)
+        tray_menu = QMenu()
+        tray_menu.addAction(show_action)
+        tray_menu.addAction(hide_action)
+        tray_menu.addSeparator()
+        tray_menu.addAction(quit_action)
+        self.tray_icon.setContextMenu(tray_menu)
+        self.tray_icon.setIcon(QIcon('./icon/beer.ico'))
+        if self.trayicon != 0:
+            self.tray_icon.show()
+        else:
+            self.tray_icon.hide()
 
         # button for the folder selection (ALAC)
         self.btn_lossless.setMinimumHeight(50)
@@ -388,6 +409,7 @@ class App(QWidget):
         self.btn_start.setEnabled(False)
         self.btn_start.setIcon(QIcon('./icon/play_off.png'))
 
+    @pyqtSlot()
     def done(self):
         self.nstart -= 1
         if self.nstart == 0:
@@ -416,10 +438,12 @@ class App(QWidget):
             else:
                 pass
 
+    @pyqtSlot()
     def update_progress_bar(self):
         self.progress.setValue(self.progress.value() + 1)
         self.lcd_count.display(self.lcd_count.value() - 1)
 
+    @pyqtSlot()
     def showCPU(self):
         if self.btn_stop.isEnabled() == True:
             cpu_load = psutil.cpu_percent()
@@ -433,6 +457,7 @@ class App(QWidget):
         else:
             self.cpu_percent.setValue(0.)
 
+    @pyqtSlot()
     def showPERF(self):
         if self.btn_stop.isEnabled() == True:
             self.nm1 = self.n0
@@ -442,6 +467,7 @@ class App(QWidget):
             meanval = sum(self.perfmean) / len(self.perfmean)
             self.perf.setText('speed: %d files/sec\t(mean: %.2f)' % (delta, meanval))
 
+    @pyqtSlot()
     def showTIME(self):
         if self.nstart > 0:
             now = QDateTime().currentDateTime().toPyDateTime()
@@ -453,16 +479,39 @@ class App(QWidget):
             self.elapsed_time.display('%03d:%02d:%02d' % (h, m, sec))
 
     def closeEvent(self, event):
+        if self.trayicon != 0:
+            event.ignore()
+            self.hide()
+            self.tray_icon.showMessage(
+                "pLACaudio",
+                "was minimized to Tray",
+                QSystemTrayIcon.Information,
+                3000
+            )
+        else:
+            if self.nstart > 0:  # conversion still in progress
+                reply = QMessageBox.question(self, 'Message',
+                                             "Conversion is still in progress. Are you sure to quit?", QMessageBox.Yes |
+                                             QMessageBox.No, QMessageBox.No)
+                if reply == QMessageBox.Yes:
+                    event.accept()
+                else:
+                    event.ignore()
+            else:
+                event.accept()
+
+    @pyqtSlot()
+    def pLACexit(self):
         if self.nstart > 0:  # conversion still in progress
+            self.show()
             reply = QMessageBox.question(self, 'Message',
                                          "Conversion is still in progress. Are you sure to quit?", QMessageBox.Yes |
                                          QMessageBox.No, QMessageBox.No)
             if reply == QMessageBox.Yes:
-                event.accept()
-            else:
-                event.ignore()
+                self.app.quit()
         else:
-            event.accept()
+            self.app.quit()
+
 
 if __name__ == '__main__':
     version = '0.3'
