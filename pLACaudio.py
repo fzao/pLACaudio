@@ -48,7 +48,6 @@ License GNU GPL v3
 
 import os
 import sys
-import multiprocessing as mp
 import psutil
 import logging
 from mp3Thread import MP3Thread
@@ -168,7 +167,7 @@ class App(QWidget):
         combo = QComboBox()
         combo.setToolTip('Choose the number of CPUs')
         combo.addItem('CPU')
-        ncpu = mp.cpu_count()
+        ncpu = os.cpu_count()
         combo.addItems([str(i+1) for i in range(ncpu)])
         combo.currentIndexChanged['int'].connect(self.current_index_changed)
 
