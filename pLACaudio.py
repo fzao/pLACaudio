@@ -356,6 +356,12 @@ class App(QWidget):
         listofFiles(self)
         if len(self.audio_files) == 0:
             return
+        # shutdown requested?
+        if self.poweroff == 2:
+            answer = QMessageBox.warning(self, 'Message', 'Computer will be shut down after conversion! Continue?',
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if answer == QMessageBox.No:
+                return
         # Thread execution
         n = min(self.ncpu, len(self.audio_files))
         audio = [self.audio_files[i * n:(i + 1) * n] for i in range((len(self.audio_files) + n - 1) // n)]
