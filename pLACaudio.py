@@ -50,6 +50,7 @@ import os
 import sys
 import psutil
 import logging
+import subprocess
 from mp3Thread import MP3Thread
 from pLogger import PLogger
 from ddButton import DDButtonFrom, DDButtonTo
@@ -399,10 +400,12 @@ class App(QWidget):
             elif self.poweroff == 1:
                 self.app.quit()
             elif self.poweroff == 2:
-                if os.name == 'nt':  # Windows specific
+                if sys.platform == 'win32':  # Windows specific
                     os.system('shutdown /s /f')
-                else:
+                elif 'linux' in sys.platform:
                     os.system('shutdown -h now')
+                elif sys.platform == 'darwin':
+                    subprocess.call(['osascript', '-e', 'tell app "System Events" to shut down'])
                 self.app.quit()  # !?
             else:
                 pass
