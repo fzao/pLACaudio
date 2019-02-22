@@ -27,16 +27,43 @@ Copyright (c) 2019 Fabrice Zaoui
 License GNU GPL v3
 
 """
-import logging
-from PyQt5.QtWidgets import QPlainTextEdit
+import qdarkstyle
 
 
-class PLogger(logging.Handler):
-    def __init__(self, parent):
-        super().__init__()
-        self.widget = QPlainTextEdit(parent)
-        self.widget.setReadOnly(True)
+def ChangeStyle(self, theme=0):
+    self.theme = theme
+    if theme == 0:  # default
+        self.setStyleSheet('')
+    elif theme == 1:  # dark
+        self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    # save settings
+    self.settings.setValue('theme', theme)
 
-    def emit(self, record):
-        msg = self.format(record)
-        self.widget.appendPlainText(msg)
+
+def ShowLogger(self, log=1):
+    if log == 1:
+        self.grp_log.setVisible(True)
+    else:
+        self.grp_log.setVisible(False)
+    self.app.processEvents()
+    if self.grp_log.isVisible():
+        self.resize(480, 640)
+    else:
+        self.resize(480, 440)
+    # save settings
+    self.settings.setValue('logger', log)
+
+
+def ShowTrayIcon(self, tray=0):
+    self.trayicon = tray
+    if tray == 1:
+        self.tray_icon.show()
+    else:
+        self.tray_icon.hide()
+    # save settings
+    self.settings.setValue('trayicon', tray)
+
+def Shutdown(self, poweroff=0):
+    self.poweroff = poweroff
+    # save settings
+    self.settings.setValue('poweroff', poweroff)

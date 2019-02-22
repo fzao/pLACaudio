@@ -48,39 +48,51 @@ License GNU GPL v3
 
 import os
 import sys
-import glob
-import multiprocessing as mp
 import psutil
 import logging
-from mp3Thread import mp3Thread
-from pLogger import pLogger
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QGroupBox, QFileDialog, QStyle, QProgressBar, QVBoxLayout, QHBoxLayout, QComboBox, QMessageBox, QLCDNumber, QLabel, QSlider
-from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime
-from PyQt5.QtGui import QIcon
+import subprocess
+from mp3Thread import MP3Thread
+from pLogger import PLogger
+from ddButton import DDButtonFrom, DDButtonTo
+from pPref import Preference
+from pSettings import ChangeStyle, ShowLogger
+from listFiles import listofFiles
+from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar,\
+                            QPushButton, QGridLayout, QGroupBox, QFileDialog,\
+                            QProgressBar, QVBoxLayout, QHBoxLayout,\
+                            QComboBox, QMessageBox, QLCDNumber, QLabel, QSystemTrayIcon, QMenu
+from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime, QSettings
+from PyQt5.QtGui import QIcon, QPalette
 from PyQt5 import sip
 
 
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        self.title = 'pLACaudio'
+        self.app = app
+        self.myQMenuBar = QMenuBar(self)
+        self.title = 'pLACaudio Transcoder'
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setBaseSize(480, 640)
         self.lossless_folder = ''
         self.lossy_location = ''
+        self.audio_files = []
         self.ncpu = 0
-        self.btn_lossless = QPushButton('FLAC / ALAC / DSF / WAV / AIFF')
-        self.btn_lossy = QPushButton('Output')
+        self.btn_lossless = DDButtonFrom(self)
+        self.btn_lossless.setText('FLAC / ALAC / DSF / WAV / AIFF')
+        self.btn_lossy = DDButtonTo(self)
+        self.btn_lossy.setText('Output')
         self.format = QComboBox()
         self.quality = QComboBox()
         self.btn_start = QPushButton('START')
         self.btn_stop = QPushButton('STOP')
-        self.btn_about = QPushButton('About')
         self.progress = QProgressBar()
         self.cpu_percent = QProgressBar()
         self.lcd_count = QLCDNumber()
         self.elapsed_time = QLCDNumber()
         self.perf = QLabel()
+        self.grp_log = QGroupBox('logger')
+        self.tray_icon = QSystemTrayIcon(self)
         self.threads = []
         self.nstart = 0
         self.nm1 = 0
@@ -99,54 +111,94 @@ class App(QWidget):
                      'ALAC':{'Low':['0', 'Compression Level: 0'], 'Medium':['1', 'Compression Level: 1'], 'High':['2', 'Compression Level:2']}, \
                      'WAV': {'Low': ['0', 'No Compression'], 'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}, \
                      'AIFF': {'Low': ['0', 'No Compression'],'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}}
-
+        self.danger = "QProgressBar::chunk { background-color: #FF3633;}"
+        self.inter = "QProgressBar::chunk { background-color: #FFAF33;}"
+        self.safe = "QProgressBar::chunk {background-color: #1CDA19;}"
         self.myquality = ''
         self.myformat = ''
+        self.settings = QSettings('pLAC', 'pLAC')
+        self.theme = self.settings.value('theme', type=int)
+        self.poweroff = self.settings.value('poweroff', type=int)
+        self.trayicon = self.settings.value('trayicon', type=int)
         self.initUI()
 
     def initUI(self):
+        # settings
+        ChangeStyle(self, self.theme)
+        log = self.settings.value('logger', type=int)
+        ShowLogger(self, log)
+
         # window title and geometry
         self.setWindowTitle(self.title)
+
+        # menu bar
+        #colorcode = self.btn_lossless.palette().color(QPalette.Background).name()
+        self.myQMenuBar.setStyleSheet("QMenuBar::item { background-color: rgba(255,255,255,0); }")
+        self.myQMenuBar.setMaximumWidth(105)
+
+        pLAC = self.myQMenuBar.addMenu('pLACaudio')
+        prefpLAC = QAction('Settings', self)
+        prefpLAC.triggered.connect(self.call_pref)
+        pLAC.addAction(prefpLAC)
+        aboutpLAC = QAction('About', self)
+        aboutpLAC.triggered.connect(self.call_info)
+        pLAC.addAction(aboutpLAC)
+
+        # tray icon
+        show_action = QAction("Show", self)
+        hide_action = QAction("Hide", self)
+        quit_action = QAction("Exit", self)
+        show_action.triggered.connect(self.show)
+        hide_action.triggered.connect(self.hide)
+        quit_action.triggered.connect(self.pLACexit)
+        tray_menu = QMenu()
+        tray_menu.addAction(show_action)
+        tray_menu.addAction(hide_action)
+        tray_menu.addSeparator()
+        tray_menu.addAction(quit_action)
+        self.tray_icon.setContextMenu(tray_menu)
+        self.tray_icon.setIcon(QIcon('./icon/beer.ico'))
+        self.tray_icon.activated.connect(self.iconActivated)
+        if self.trayicon != 0:
+            self.tray_icon.show()
+        else:
+            self.tray_icon.hide()
 
         # button for the folder selection (ALAC)
         self.btn_lossless.setMinimumHeight(50)
         self.btn_lossless.move(50, 10)
-        self.btn_lossless.setToolTip('Folder of lossless files to convert')
+        self.btn_lossless.setToolTip('Drag and Drop the folder of lossless files to convert')
         self.btn_lossless.clicked.connect(self.on_click_alac)
 
         # button for the folder selection (MP3)
         self.btn_lossy.setMinimumHeight(50)
         self.btn_lossy.move(50, 60)
-        self.btn_lossy.setToolTip('Destination folder for the audio files')
+        self.btn_lossy.setToolTip('Drag and Drop the destination folder for the audio files')
         self.btn_lossy.clicked.connect(self.on_click_mp3)
 
         # buttons for starting and stopping
         self.btn_start.setMinimumHeight(100)
         self.btn_start.setToolTip('Start conversion')
-        self.btn_start.setIcon(QIcon(QApplication.style().standardIcon(QStyle.SP_MediaPlay)))
+        self.btn_start.setIcon(QIcon('./icon/play_on.png'))
         self.btn_start.clicked.connect(self.call_convert2lossy)
         self.btn_stop.setMinimumHeight(100)
         self.btn_stop.setEnabled(False)
         self.btn_stop.setToolTip('Stop conversion')
-        self.btn_stop.setIcon(QIcon(QApplication.style().standardIcon(QStyle.SP_MediaStop)))
-
-        # button 'about'
-        self.btn_about.setMaximumWidth(100)
-        self.btn_about.clicked.connect(self.call_info)
+        self.btn_stop.setIcon(QIcon('./icon/stop_off.png'))
 
         # Choosing number of cpu with a ComboBox
         combo = QComboBox()
         combo.setToolTip('Choose the number of CPUs')
         combo.addItem('CPU')
-        ncpu = mp.cpu_count()
+        ncpu = os.cpu_count()
         combo.addItems([str(i+1) for i in range(ncpu)])
         combo.currentIndexChanged['int'].connect(self.current_index_changed)
 
         # logging display
-        logTextBox = pLogger(self)
+        logTextBox = PLogger(self)
         logTextBox.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s -> %(message)s', "%Y-%m-%d %H:%M"))
         logging.getLogger().addHandler(logTextBox)
-        logging.getLogger().setLevel(logging.DEBUG) # default level
+        logging.getLogger().setLevel(logging.DEBUG)  # default level
 
         # LCD
         self.lcd_count.setSegmentStyle(2)
@@ -220,26 +272,23 @@ class App(QWidget):
 
         vlayout5 = QVBoxLayout()
         vlayout5.addWidget(logTextBox.widget)
-        grp_log = QGroupBox('logger')
-        grp_log.setLayout(vlayout5)
-        grp_log.setToolTip('Information')
+        self.grp_log.setLayout(vlayout5)
+        self.grp_log.setToolTip('Information')
 
-        hlayout3 = QHBoxLayout()
-        hlayout3.addWidget(self.progress)
-        hlayout3.addWidget(self.btn_about)
         vlayout6 = QVBoxLayout()
-        vlayout6.addLayout(hlayout3)
+        vlayout6.addWidget(self.progress)
         vlayout6.addWidget(self.perf)
         grp_pro = QGroupBox('progress')
         grp_pro.setLayout(vlayout6)
         grp_pro.setToolTip('See the progress status')
 
         grid = QGridLayout()
-        grid.addWidget(grp_io, 0, 0)
-        grid.addWidget(grp_codec, 0, 1)
-        grid.addWidget(grp_conv, 1, 0, 1, 0)
-        grid.addWidget(grp_log, 2, 0, 1, 0)
-        grid.addWidget(grp_pro, 3, 0, 1, 0)
+        grid.addWidget(self.myQMenuBar, 0, 0, 1, 0)
+        grid.addWidget(grp_io, 1, 0)
+        grid.addWidget(grp_codec, 1, 1)
+        grid.addWidget(grp_conv, 2, 0, 1, 0)
+        grid.addWidget(self.grp_log, 3, 0, 1, 0)
+        grid.addWidget(grp_pro, 4, 0, 1, 0)
         self.setLayout(grid)
 
         # show window
@@ -248,24 +297,31 @@ class App(QWidget):
     @pyqtSlot()
     def on_click_alac(self):
         self.lossless_folder = QFileDialog.getExistingDirectory(self, 'Select Folder')
-        if os.name == 'nt':  # Windows specific
-            self.lossless_folder = self.lossless_folder.replace('/', '\\')
-        logging.info('from folder: ' + self.lossless_folder)
         if self.lossless_folder != '':
+            if os.name == 'nt':  # Windows specific
+                self.lossless_folder = self.lossless_folder.replace('/', '\\')
             self.btn_lossless.setToolTip(self.lossless_folder)
+            logging.info('from folder: ' + self.lossless_folder)
+            # get the list of all files to convert
+            listofFiles(self)
 
     @pyqtSlot()
     def on_click_mp3(self):
         self.lossy_location = QFileDialog.getExistingDirectory(self, 'Select Folder')
-        if os.name == 'nt':  # Windows specific
-            self.lossy_location = self.lossy_location.replace('/', '\\')
-        logging.info('to folder: ' + self.lossy_location)
         if self.lossy_location != '':
+            if os.name == 'nt':  # Windows specific
+                self.lossy_location = self.lossy_location.replace('/', '\\')
             self.btn_lossy.setToolTip(self.lossy_location)
+            logging.info('to folder: ' + self.lossy_location)
 
     @pyqtSlot()
     def call_info(self):
-        QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio'>pLACaudio v0.2</a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
+        QMessageBox.information(self, "Information", "<a href='https://github.com/fzao/pLACaudio' style='color:#32C896'>pLACaudio v" + version + " </a> - License GNU GPL v3.0 - Copyright (c) 2019\n")
+
+    @pyqtSlot()
+    def call_pref(self):
+        self.pref = Preference(self)
+        self.pref.show()
 
     @pyqtSlot(int)
     def current_index_changed(self, index):
@@ -318,42 +374,19 @@ class App(QWidget):
                 self.myquality = 'Low'  # WAV and AIFF (no compression)
         # start time
         self.start_time = QDateTime().currentDateTime().toPyDateTime()
-        # get the list of all files to convert
-        ext = 'm4a'
-        audio_alac = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'flac'
-        audio_flac = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'dsf'
-        audio_dsf = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'wav'
-        audio_wav = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'aif'
-        audio_aiff1 = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        ext = 'aiff'
-        audio_aiff2 = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
-        audio_aiff = audio_aiff1 + audio_aiff2
-        audio_files = audio_alac + audio_flac + audio_dsf + audio_wav + audio_aiff
-        # Number of files found
-        if len(audio_files) == 0:
-            logging.error('No files found!')
-            QMessageBox.warning(self, 'Warning', 'No lossless files found!')
+        # is the list full?
+        listofFiles(self)
+        if len(self.audio_files) == 0:
             return
-        else:
-            logging.info('Number of ALAC files: ' + str(len(audio_alac)))
-            logging.info('Number of FLAC files: ' + str(len(audio_flac)))
-            logging.info('Number of DSF files: ' + str(len(audio_dsf)))
-            logging.info('Number of WAV files: ' + str(len(audio_wav)))
-            logging.info('Number of AIFF files: ' + str(len(audio_aiff)))
-            logging.info('Total number of files: ' + str(len(audio_files)))
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(len(audio_files) - 1)
-        self.progress.setValue(0)
-        self.lcd_count.display(len(audio_files))
-        self.nm1 = len(audio_files)
-        self.n0 = len(audio_files)
+        # shutdown requested?
+        if self.poweroff == 2:
+            answer = QMessageBox.warning(self, 'Message', 'Computer will be shut down after conversion! Continue?',
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if answer == QMessageBox.No:
+                return
         # Thread execution
-        n = min(self.ncpu, len(audio_files))
-        audio = [audio_files[i * n:(i + 1) * n] for i in range((len(audio_files) + n - 1) // n)]
+        n = min(self.ncpu, len(self.audio_files))
+        audio = [self.audio_files[i * n:(i + 1) * n] for i in range((len(self.audio_files) + n - 1) // n)]
         audio_end = []
         if len(audio) > 1:
             audio_end = audio.pop(-1)
@@ -363,7 +396,7 @@ class App(QWidget):
         self.threads = []
         for i in range(len(audio)):
             q = self.qval[self.myformat][self.myquality][0]
-            self.threads.append(mp3Thread(audio[i], self.lossless_folder, self.lossy_location, q, self.myformat))
+            self.threads.append(MP3Thread(audio[i], self.lossless_folder, self.lossy_location, q, self.myformat))
         self.nstart = 0
         for i in range(len(audio)):
             self.threads[i].update_progress_bar.connect(self.update_progress_bar)
@@ -372,39 +405,73 @@ class App(QWidget):
             self.nstart += 1
             self.btn_stop.clicked.connect(self.threads[i].terminate)
         logging.info('Conversion in progress...')
+        self.tray_icon.showMessage(
+            "pLACaudio",
+            "Conversion has just started...",
+            QSystemTrayIcon.Information,
+            5000
+        )
         self.btn_stop.setEnabled(True)
+        self.btn_stop.setIcon(QIcon('./icon/stop_on.png'))
         self.btn_start.setEnabled(False)
+        self.btn_start.setIcon(QIcon('./icon/play_off.png'))
 
+    @pyqtSlot()
     def done(self):
         self.nstart -= 1
         if self.nstart == 0:
-            self.btn_stop.setEnabled(False)
-            self.btn_start.setEnabled(True)
             logging.info('Done!')
-            QMessageBox.information(self, "Done!", "Conversion done!")
-            self.progress.setValue(0)
-            self.lcd_count.display(0)
-            self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
-            self.perf.setText('speed:0 files/sec\t(mean: 0.0)')
-            self.perfmean = []
+            if self.poweroff == 0:
+                self.btn_stop.setEnabled(False)
+                self.btn_stop.setIcon(QIcon('./icon/stop_off.png'))
+                self.btn_start.setEnabled(True)
+                self.btn_start.setIcon(QIcon('./icon/play_on.png'))
+                if not self.isHidden():
+                    QMessageBox.information(self, "Done!", "Conversion done!")
+                self.progress.setValue(0)
+                self.lcd_count.display(0)
+                self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
+                self.perf.setText('speed:0 files/sec\t(mean: 0.0)')
+                self.perfmean = []
+                self.tray_icon.showMessage(
+                    "pLACaudio",
+                    "Conversion just ended!",
+                    QSystemTrayIcon.Information,
+                    5000
+                )
+            elif self.poweroff == 1:
+                self.app.quit()
+            elif self.poweroff == 2:
+                if sys.platform == 'win32':  # Windows specific
+                    os.system('shutdown /s /f')
+                elif 'linux' in sys.platform:
+                    os.system('shutdown -h now')
+                elif sys.platform == 'darwin':
+                    subprocess.call(['osascript', '-e', 'tell app "System Events" to shut down'])
+                self.app.quit()  # !?
+            else:
+                pass
 
+    @pyqtSlot()
     def update_progress_bar(self):
         self.progress.setValue(self.progress.value() + 1)
         self.lcd_count.display(self.lcd_count.value() - 1)
 
+    @pyqtSlot()
     def showCPU(self):
         if self.btn_stop.isEnabled() == True:
             cpu_load = psutil.cpu_percent()
             if cpu_load < 50.:
-                self.cpu_percent.setStyleSheet(safe)
+                self.cpu_percent.setStyleSheet(self.safe)
             elif cpu_load < 80.:
-                self.cpu_percent.setStyleSheet(inter)
+                self.cpu_percent.setStyleSheet(self.inter)
             else:
-                self.cpu_percent.setStyleSheet(danger)
+                self.cpu_percent.setStyleSheet(self.danger)
             self.cpu_percent.setValue(cpu_load)
         else:
             self.cpu_percent.setValue(0.)
 
+    @pyqtSlot()
     def showPERF(self):
         if self.btn_stop.isEnabled() == True:
             self.nm1 = self.n0
@@ -414,6 +481,7 @@ class App(QWidget):
             meanval = sum(self.perfmean) / len(self.perfmean)
             self.perf.setText('speed: %d files/sec\t(mean: %.2f)' % (delta, meanval))
 
+    @pyqtSlot()
     def showTIME(self):
         if self.nstart > 0:
             now = QDateTime().currentDateTime().toPyDateTime()
@@ -424,11 +492,56 @@ class App(QWidget):
             sec = int((totsec % 3600) % 60)
             self.elapsed_time.display('%03d:%02d:%02d' % (h, m, sec))
 
+    def closeEvent(self, event):
+        if self.trayicon != 0:
+            event.ignore()
+            self.hide()
+            self.tray_icon.showMessage(
+                "pLACaudio",
+                "was minimized to Tray",
+                QSystemTrayIcon.Information,
+                5000
+            )
+        else:
+            if self.nstart > 0:  # conversion still in progress
+                reply = QMessageBox.question(self, 'Message',
+                                             "Conversion is still in progress. Are you sure to quit?", QMessageBox.Yes |
+                                             QMessageBox.No, QMessageBox.No)
+                if reply == QMessageBox.Yes:
+                    event.accept()
+                else:
+                    event.ignore()
+            else:
+                event.accept()
+
+    @pyqtSlot()
+    def pLACexit(self):
+        if self.nstart > 0:  # conversion still in progress
+            self.show()
+            reply = QMessageBox.question(self, 'Message',
+                                         "Conversion is still in progress. Are you sure to quit?", QMessageBox.Yes |
+                                         QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                self.app.quit()
+        else:
+            self.app.quit()
+
+
+    def iconActivated(self, reason):
+        if reason in (QSystemTrayIcon.Trigger, QSystemTrayIcon.DoubleClick):
+            self.show()
+        elif reason == QSystemTrayIcon.MiddleClick:
+            if self.nstart > 0:
+                percent = (self.progress.value() - self.progress.minimum()) / (self.progress.maximum() - self.progress.minimum())
+                percent = percent * 100
+                self.tray_icon.showMessage("pLACaudio",
+                    "Progress: " + "{0:0.1f}".format(percent) + ' %',
+                    QSystemTrayIcon.Information,
+                    2000)
+
 
 if __name__ == '__main__':
-    danger = "QProgressBar::chunk { background-color: #FF3633;}"
-    inter = "QProgressBar::chunk { background-color: #FFAF33;}"
-    safe = "QProgressBar::chunk {background-color: #61FF33;}"
+    version = '0.3'
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
