@@ -1,5 +1,15 @@
 -----------
-VERSION 0.2 (February 09 2019)
+VERSION 0.3
+-----------
+- drap & drop folders
+- dark color theme with qdarkstyle module
+- systray icon
+- show logger is an option
+- wait/quit/power-off options
+- GUI improvements
+
+-----------
+VERSION 0.2
 -----------
 - conversion Lossless --> Lossless is supported
 - new DSD/DSF format in input
@@ -9,7 +19,7 @@ VERSION 0.2 (February 09 2019)
 - ffmpeg 4.1
 
 -----------
-VERSION 0.1 (February 01 2019)
+VERSION 0.1
 -----------
 - first release
 - input formats: ALAC / FLAC / WAV / AIFF
