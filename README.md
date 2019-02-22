@@ -35,7 +35,7 @@ Three settings of the output quality audio are possible (corresponding to differ
 Requirements
 ============
 
-- Python 3 and PyQt5
+- Python 3 and [PyQt5](https://www.riverbankcomputing.com/software/pyqt/intro)
 - [ffMPEG](https://www.ffmpeg.org) converter
 
 Use
