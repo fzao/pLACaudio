@@ -495,13 +495,14 @@ class App(QWidget):
     def closeEvent(self, event):
         if self.trayicon != 0:
             event.ignore()
-            self.hide()
-            self.tray_icon.showMessage(
-                "pLACaudio",
-                "was minimized to Tray",
-                QSystemTrayIcon.Information,
-                5000
-            )
+            if not self.isHidden():
+                self.tray_icon.showMessage(
+                    "pLACaudio",
+                    "was minimized to Tray",
+                    QSystemTrayIcon.Information,
+                    5000
+                )
+                self.hide()
         else:
             if self.nstart > 0:  # conversion still in progress
                 reply = QMessageBox.question(self, 'Message',
