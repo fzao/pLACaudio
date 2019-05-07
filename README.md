@@ -23,13 +23,12 @@ Three settings of the output quality audio are possible (corresponding to differ
 
 <p align="center">
   <img src="./img/Windows_win10.png" width="200"/>
-  <img src="./img/Windows_linux.png" width="200"/>
 </p>
 <p align="center">
   <img src="./img/Windows_macOS.png" width="250"/>
 </p>
 <p align="center">
-   <b>pLACaudio on Windows 10, GNU/Linux and macOS</b>
+   <b>pLACaudio v0.3 on Windows 10 and macOS</b>
 </p>
 
 Requirements
@@ -61,4 +60,3 @@ Contributions
 Contributions are welcome.
 
 When contributing to **pLACaudio** please consider discussing the changes you wish to make via issue.
-
