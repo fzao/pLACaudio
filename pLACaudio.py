@@ -125,7 +125,10 @@ class App(QWidget):
     def initUI(self):
         # settings
         ChangeStyle(self, self.theme)
-        log = self.settings.value('logger', type=int)
+        if 'logger' in self.settings.childKeys():
+            log = self.settings.value('logger', type=int)
+        else:
+            log = 1
         ShowLogger(self, log)
 
         # window title and geometry
