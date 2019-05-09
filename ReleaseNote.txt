@@ -1,4 +1,9 @@
 -----------
+VERSION 0.4
+-----------
+- APE input format added
+
+-----------
 VERSION 0.3
 -----------
 - drap & drop folders
