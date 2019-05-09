@@ -79,9 +79,9 @@ class App(QWidget):
         self.audio_files = []
         self.ncpu = 0
         self.btn_lossless = DDButtonFrom(self)
-        self.btn_lossless.setText('FLAC / ALAC / DSF / WAV / AIFF')
+        self.btn_lossless.setText('FLAC / ALAC / DSF / APE / WAV / AIFF')
         self.btn_lossy = DDButtonTo(self)
-        self.btn_lossy.setText('Output')
+        self.btn_lossy.setText('OUTPUT')
         self.format = QComboBox()
         self.quality = QComboBox()
         self.btn_start = QPushButton('START')

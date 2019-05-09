@@ -6,6 +6,7 @@ Input folder of lossless files can include the following formats:
 - ALAC
 - [FLAC](https://xiph.org/flac/)
 - [DSF](https://en.wikipedia.org/wiki/Direct_Stream_Digital) (Hi-Res Direct Stream Digital)
+- [APE](https://monkeysaudio.com/)
 - WAV
 - AIFF
 
@@ -36,6 +37,7 @@ Requirements
 
 - Python 3 and [PyQt5](https://www.riverbankcomputing.com/software/pyqt/intro)
 - [ffMPEG](https://www.ffmpeg.org) converter
+- [qdarkstyle](https://github.com/ColinDuquesnoy/QDarkStyleSheet)
 
 Use
 ===

@@ -41,6 +41,8 @@ def listofFiles(self):
     audio_flac = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
     ext = 'dsf'
     audio_dsf = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
+    ext = 'ape'
+    audio_ape = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
     ext = 'wav'
     audio_wav = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
     ext = 'aif'
@@ -48,7 +50,7 @@ def listofFiles(self):
     ext = 'aiff'
     audio_aiff2 = glob.glob(self.lossless_folder + '/**/*.' + ext, recursive=True)
     audio_aiff = audio_aiff1 + audio_aiff2
-    self.audio_files = audio_alac + audio_flac + audio_dsf + audio_wav + audio_aiff
+    self.audio_files = audio_alac + audio_flac + audio_dsf + audio_ape + audio_wav + audio_aiff
     if len(self.audio_files) == 0:
         logging.error('No files found!')
         QMessageBox.warning(self, 'Warning', 'No lossless files found!')
@@ -57,6 +59,7 @@ def listofFiles(self):
         logging.info('Number of ALAC files: ' + str(len(audio_alac)))
         logging.info('Number of FLAC files: ' + str(len(audio_flac)))
         logging.info('Number of DSF files: ' + str(len(audio_dsf)))
+        logging.info('Number of APE files: ' + str(len(audio_ape)))
         logging.info('Number of WAV files: ' + str(len(audio_wav)))
         logging.info('Number of AIFF files: ' + str(len(audio_aiff)))
         logging.info('Total number of files: ' + str(len(self.audio_files)))
