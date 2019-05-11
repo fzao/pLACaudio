@@ -28,7 +28,7 @@ License GNU GPL v3
 
 """
 import logging
-from pSettings import ChangeStyle, ShowLogger, ShowTrayIcon, Shutdown
+from pSettings import ChangeStyle, ShowLogger, ShowTrayIcon, Shutdown, SampleRate
 from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel, QComboBox
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5 import Qt
@@ -42,7 +42,7 @@ class Preference(QMainWindow):
         self.setWindowTitle('Settings')
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setWindowModality(Qt.Qt.WindowModal)
-        self.setFixedSize(350, 400)
+        self.setFixedSize(370, 500)
 
         # bold font
         myFont = QFont()
@@ -87,16 +87,31 @@ class Preference(QMainWindow):
         txttray = QLabel('System tray icon : ', self)
         txttray.setFont(myFont)
         txttray.setMinimumWidth(150)
-        txttray.setToolTip('Keep in the background when the main window is closed')
         txttray.move(10, 250)
         self.tray = QCheckBox('Use and Show', self)
+        self.tray.setToolTip('Keep in the background when the main window is closed')
         self.tray.setMinimumWidth(150)
         self.tray.move(30, 280)
 
+        # checkbox and combo (sample rate)
+        txtsr = QLabel('User-defined sample rate (lossless DSF conversion) :', self)
+        txtsr.setFont(myFont)
+        txtsr.setMinimumWidth(360)
+        txtsr.move(10, 330)
+        self.sr = QCheckBox('Select (Hz)', self)
+        self.sr.setToolTip('Choose a sample rate frequency when converting from DSF to FLAC/ALAC/WAV/AIFF')
+        self.sr.setMinimumWidth(150)
+        self.sr.move(30, 360)
+        self.srfreq = QComboBox(self)
+        self.srfreq.addItems(['44100', '88200', '176400', '352800'])
+        self.srfreq.currentIndexChanged['int'].connect(self.samplerate)
+        self.srfreq.setMinimumWidth(125)
+        self.srfreq.move(160, 365)
+
         # quit button
         self.btn_ok = QPushButton('OK', self)
-        self.btn_ok.resize(150,50)
-        self.btn_ok.move(100, 340)
+        self.btn_ok.resize(150, 50)
+        self.btn_ok.move(110, 430)
         self.initUI()
 
     def initUI(self):
@@ -116,6 +131,16 @@ class Preference(QMainWindow):
 
         # combo (after conversion)
         self.pwoff.setCurrentIndex(self.parent().poweroff)
+
+        # checkbox (sample rate)
+        if self.parent().samplerate == 0:
+            self.sr.setCheckState(Qt.Qt.Unchecked)
+            self.srfreq.setDisabled(True)
+        else:
+            self.sr.setCheckState(Qt.Qt.Checked)
+            self.srfreq.setEnabled(True)
+            self.srfreq.setCurrentIndex(self.parent().samplerate - 1)
+        self.sr.stateChanged.connect(self.changeSR)
 
         # quit button
         self.btn_ok.clicked.connect(self.pref_exit)
@@ -154,6 +179,15 @@ class Preference(QMainWindow):
             ShowTrayIcon(self.parent(), 0)
             logging.info('Tray icon is disabled')
 
+    @pyqtSlot()
+    def changeSR(self):
+        if self.sr.isChecked():
+            self.srfreq.setEnabled(True)
+            SampleRate(self.parent(), self.srfreq.currentIndex() + 1)
+        else:
+            self.srfreq.setDisabled(True)
+            SampleRate(self.parent(), 0)
+
     @pyqtSlot(int)
     def poweroff(self, value):
         if value == 0:
@@ -163,6 +197,18 @@ class Preference(QMainWindow):
         elif value == 2:
             logging.info('after the conversion pLACaudio will shutdown the computer')
         Shutdown(self.parent(), value)
+
+    @pyqtSlot(int)
+    def samplerate(self, value):
+        if value == 0:
+            logging.info('Sample rate frequency is set to 44100 Hz')
+        elif value == 1:
+            logging.info('Sample rate frequency is set to 88200 Hz')
+        elif value == 2:
+            logging.info('Sample rate frequency is set to 176400 Hz')
+        elif value == 3:
+            logging.info('Sample rate frequency is set to 352800 Hz')
+        SampleRate(self.parent(), self.srfreq.currentIndex() + 1)
 
     def pref_exit(self):
         self.close()

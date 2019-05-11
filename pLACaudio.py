@@ -120,6 +120,7 @@ class App(QWidget):
         self.theme = self.settings.value('theme', type=int)
         self.poweroff = self.settings.value('poweroff', type=int)
         self.trayicon = self.settings.value('trayicon', type=int)
+        self.samplerate = self.settings.value('samplerate', type=int)
         self.initUI()
 
     def initUI(self):

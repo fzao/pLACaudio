@@ -67,3 +67,8 @@ def Shutdown(self, poweroff=0):
     self.poweroff = poweroff
     # save settings
     self.settings.setValue('poweroff', poweroff)
+
+def SampleRate(self, freq=0):
+    self.samplerate = freq
+    # save settings
+    self.settings.setValue('samplerate', freq)
