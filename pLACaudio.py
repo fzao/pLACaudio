@@ -546,7 +546,7 @@ class App(QWidget):
 
 
 if __name__ == '__main__':
-    version = '0.3'
+    version = '0.4'
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
