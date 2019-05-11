@@ -62,7 +62,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QAction, QMenuBar,\
                             QProgressBar, QVBoxLayout, QHBoxLayout,\
                             QComboBox, QMessageBox, QLCDNumber, QLabel, QSystemTrayIcon, QMenu
 from PyQt5.QtCore import pyqtSlot, QTimer, QDateTime, QSettings
-from PyQt5.QtGui import QIcon, QPalette
+from PyQt5.QtGui import QIcon
 from PyQt5 import sip
 
 
@@ -103,13 +103,13 @@ class App(QWidget):
         self.timer_elapsed = QTimer()
         self.timer_perf = QTimer()
         self.start_time = QDateTime.currentDateTime().toPyDateTime()
-        self.qval = {'MP3':{'Low':['9', 'VBR 45-85 kbit/s'], 'Medium':['5', 'VBR 120-150 kbit/s'], 'High':['0', 'VBR 220-260 kbit/s']},\
-                     'AAC':{'Low':['64k', 'CBR 64 kbit/s'], 'Medium':['128k', 'CBR 128 kbit/s'], 'High':['256k', 'CBR 256 kbit/s']},\
-                     'Ogg Vorbis':{'Low':['0', 'VBR 64 kbit/s'], 'Medium':['5', 'VBR 160 kbit/s'], 'High':['10', 'VBR 500 kbit/s']},\
-                     'Opus':{'Low':['32k', 'CBR 32 kbit/s'], 'Medium':['64k', 'CBR 64 kbit/s'], 'High':['128k', 'CBR 128 kbit/s']},\
-                     'FLAC':{'Low':['0', 'Compression Level: 0'], 'Medium':['5', 'Compression Level: 5'], 'High':['12', 'Compression Level: 12']},\
-                     'ALAC':{'Low':['0', 'Compression Level: 0'], 'Medium':['1', 'Compression Level: 1'], 'High':['2', 'Compression Level:2']}, \
-                     'WAV': {'Low': ['0', 'No Compression'], 'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}, \
+        self.qval = {'MP3':{'Low':['9', 'VBR 45-85 kbit/s'], 'Medium':['5', 'VBR 120-150 kbit/s'], 'High':['0', 'VBR 220-260 kbit/s']},
+                     'AAC':{'Low':['64k', 'CBR 64 kbit/s'], 'Medium':['128k', 'CBR 128 kbit/s'], 'High':['256k', 'CBR 256 kbit/s']},
+                     'Ogg Vorbis':{'Low':['0', 'VBR 64 kbit/s'], 'Medium':['5', 'VBR 160 kbit/s'], 'High':['10', 'VBR 500 kbit/s']},
+                     'Opus':{'Low':['32k', 'CBR 32 kbit/s'], 'Medium':['64k', 'CBR 64 kbit/s'], 'High':['128k', 'CBR 128 kbit/s']},
+                     'FLAC':{'Low':['0', 'Compression Level: 0'], 'Medium':['5', 'Compression Level: 5'], 'High':['12', 'Compression Level: 12']},
+                     'ALAC':{'Low':['0', 'Compression Level: 0'], 'Medium':['1', 'Compression Level: 1'], 'High':['2', 'Compression Level:2']},
+                     'WAV': {'Low': ['0', 'No Compression'], 'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']},
                      'AIFF': {'Low': ['0', 'No Compression'],'Medium': ['0', 'No Compression'], 'High': ['0', 'No Compression']}}
         self.danger = "QProgressBar::chunk { background-color: #FF3633;}"
         self.inter = "QProgressBar::chunk { background-color: #FFAF33;}"
@@ -530,7 +530,6 @@ class App(QWidget):
                 self.app.quit()
         else:
             self.app.quit()
-
 
     def iconActivated(self, reason):
         if reason in (QSystemTrayIcon.Trigger, QSystemTrayIcon.DoubleClick):

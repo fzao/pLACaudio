@@ -69,4 +69,3 @@ def listofFiles(self):
     self.lcd_count.display(len(self.audio_files))
     self.nm1 = len(self.audio_files)
     self.n0 = len(self.audio_files)
-
