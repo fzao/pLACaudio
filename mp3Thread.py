@@ -54,6 +54,7 @@ class MP3Thread(QThread):
     def convert2lossy(self, audio_file_in):
         path_audio = os.path.dirname(audio_file_in)
         file_name = os.path.splitext(os.path.basename(audio_file_in))[0]
+        file_name_ext = os.path.splitext(os.path.basename(audio_file_in))[1]
         len_indir = len(self.lossless_folder)
         path_audio = path_audio[len_indir:]
         path_audio = self.lossy_location + path_audio
@@ -91,10 +92,14 @@ class MP3Thread(QThread):
             ext = 'ogg'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
+            if file_name_ext == '.dsf':
+                fe = '-ar 44100 '
+            else:
+                fe = ''
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -acodec libvorbis -q:a ' + self.qval + ' -map_metadata 0 '
+                                + ' -vn -acodec libvorbis -q:a ' + self.qval + ' -map_metadata 0 ' + fe
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'Opus':
