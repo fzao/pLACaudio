@@ -35,13 +35,14 @@ from PyQt5.QtCore import QThread, pyqtSignal
 class MP3Thread(QThread):
     update_progress_bar = pyqtSignal()
 
-    def __init__(self, audio_files, lossless_folder, lossy_location, qvalue, codec):
+    def __init__(self, audio_files, lossless_folder, lossy_location, qvalue, codec, samplerate):
         QThread.__init__(self)
         self.audio_files = audio_files
         self.lossless_folder = lossless_folder
         self.lossy_location = lossy_location
         self.qval = qvalue
         self.codec = codec
+        self.samplerate = samplerate
         self.sep = '/'
         self.null = '/dev/null'
         if os.name == 'nt':
@@ -116,40 +117,80 @@ class MP3Thread(QThread):
             ext = 'flac'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
+            fe = ''
+            if file_name_ext == '.dsf':
+                if self.samplerate == 1:
+                    fe = '-ar 44100 '
+                elif self.samplerate == 2:
+                    fe = '-ar 88200 '
+                elif self.samplerate == 3:
+                    fe = '-ar 176400 '
+                elif self.samplerate == 4:
+                    fe = '-ar 352800 '
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -compression_level ' + self.qval + ' -map_metadata 0 '
+                                + ' -vn -compression_level ' + self.qval + ' -map_metadata 0 ' + fe
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'ALAC':
             ext = 'm4a'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
+            fe = ''
+            if file_name_ext == '.dsf':
+                if self.samplerate == 1:
+                    fe = '-ar 44100 '
+                elif self.samplerate == 2:
+                    fe = '-ar 88200 '
+                elif self.samplerate == 3:
+                    fe = '-ar 176400 '
+                elif self.samplerate == 4:
+                    fe = '-ar 352800 '
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -acodec alac -compression_level ' + self.qval + ' -map_metadata 0 '
+                                + ' -vn -acodec alac -compression_level ' + self.qval + ' -map_metadata 0 ' + fe
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'WAV':
             ext = 'wav'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
+            fe = ''
+            if file_name_ext == '.dsf':
+                if self.samplerate == 1:
+                    fe = '-ar 44100 '
+                elif self.samplerate == 2:
+                    fe = '-ar 88200 '
+                elif self.samplerate == 3:
+                    fe = '-ar 176400 '
+                elif self.samplerate == 4:
+                    fe = '-ar 352800 '
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn ' + ' -map_metadata 0 '
+                                + ' -vn ' + ' -map_metadata 0 ' + fe
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'AIFF':
             ext = 'aif'
             audio_file = file_name + '.' + ext
             audio_file_out = path_audio + self.sep + audio_file
+            fe = ''
+            if file_name_ext == '.dsf':
+                if self.samplerate == 1:
+                    fe = '-ar 44100 '
+                elif self.samplerate == 2:
+                    fe = '-ar 88200 '
+                elif self.samplerate == 3:
+                    fe = '-ar 176400 '
+                elif self.samplerate == 4:
+                    fe = '-ar 352800 '
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn ' + ' -map_metadata 0 '
+                                + ' -vn ' + ' -map_metadata 0 ' + fe
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
     def run(self):

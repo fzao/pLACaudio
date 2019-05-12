@@ -1,6 +1,7 @@
 -----------
 VERSION 0.4
 -----------
+- User-defined sample rate frequency for DSF lossless conversion
 - APE input format added
 - Bug fix dsf to ogg format
 
