@@ -29,7 +29,7 @@ License GNU GPL v3
 """
 import logging
 from pSettings import ChangeStyle, ShowLogger, ShowTrayIcon, Shutdown, SampleRate
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel, QComboBox
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel, QComboBox, QWidget, QTabWidget, QGridLayout, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5 import Qt
 from PyQt5.QtCore import pyqtSlot
@@ -42,7 +42,17 @@ class Preference(QMainWindow):
         self.setWindowTitle('Settings')
         self.setWindowIcon(QIcon('./icon/beer.ico'))
         self.setWindowModality(Qt.Qt.WindowModal)
-        self.setFixedSize(370, 500)
+
+        # layout with tabs
+        layout = QVBoxLayout()
+        hlayout = QHBoxLayout()
+        typetab = QTabWidget()
+        tab1 = QWidget()
+        typetab.addTab(tab1, "Core")
+        tablayout1 = QGridLayout(tab1)
+        tab2 = QWidget()
+        typetab.addTab(tab2, "Audio")
+        tablayout2 = QGridLayout(tab2)
 
         # bold font
         myFont = QFont()
@@ -51,13 +61,13 @@ class Preference(QMainWindow):
         # radio button (color themes)
         txttheme = QLabel('Color theme : ', self)
         txttheme.setFont(myFont)
-        txttheme.move(10, 10)
+        tablayout1.addWidget(txttheme, 0, 0)
         self.b1 = QRadioButton("Default", self)
         self.b1.toggled.connect(lambda: self.btnstate(self.b1))
-        self.b1.move(30, 40)
+        tablayout1.addWidget(self.b1, 0, 1)
         self.b2 = QRadioButton("Dark", self)
         self.b2.toggled.connect(lambda: self.btnstate(self.b2))
-        self.b2.move(130, 40)
+        tablayout1.addWidget(self.b2, 0, 2)
         if self.parent().theme == 0:
             self.b1.setChecked(True)
             self.b2.setChecked(False)
@@ -68,53 +78,51 @@ class Preference(QMainWindow):
         # checkbox (view logger)
         txtlog = QLabel('Logger : ', self)
         txtlog.setFont(myFont)
-        txtlog.move(10, 90)
+        tablayout1.addWidget(txtlog, 1, 0)
         self.logger = QCheckBox('Display', self)
-        self.logger.move(30, 120)
+        tablayout1.addWidget(self.logger, 1, 1)
 
         # combo (shutdown)
         txtpwoff = QLabel('After conversion : ', self)
         txtpwoff.setFont(myFont)
-        txtpwoff.setMinimumWidth(200)
-        txtpwoff.move(10, 170)
+        tablayout1.addWidget(txtpwoff, 2, 0)
         self.pwoff = QComboBox(self)
         self.pwoff.addItems(['Wait', 'Quit', 'Power-off'])
         self.pwoff.currentIndexChanged['int'].connect(self.poweroff)
-        self.pwoff.setMinimumWidth(125)
-        self.pwoff.move(30, 200)
+        tablayout1.addWidget(self.pwoff, 2, 1)
 
         # checkbox (tray icon)
         txttray = QLabel('System tray icon : ', self)
         txttray.setFont(myFont)
-        txttray.setMinimumWidth(150)
-        txttray.move(10, 250)
+        tablayout1.addWidget(txttray, 3, 0)
         self.tray = QCheckBox('Use and Show', self)
         self.tray.setToolTip('Keep in the background when the main window is closed')
-        self.tray.setMinimumWidth(150)
-        self.tray.move(30, 280)
+        tablayout1.addWidget(self.tray, 3, 1)
 
         # checkbox and combo (sample rate)
         txtsr = QLabel('User-defined sample rate (lossless DSF conversion) :', self)
         txtsr.setFont(myFont)
-        txtsr.setMinimumWidth(360)
-        txtsr.move(10, 330)
+        tablayout2.addWidget(txtsr, 0, 0)
         self.sr = QCheckBox('Resample', self)
         self.sr.setToolTip('Choose a sample rate frequency when converting from DSF to FLAC/ALAC/WAV/AIFF')
-        self.sr.setMinimumWidth(150)
-        self.sr.move(30, 365)
+        tablayout2.addWidget(self.sr, 0, 1)
         self.srfreq = QComboBox(self)
-        self.srfreq.addItems(['44100', '88200', '176400', '352800'])
+        self.srfreq.addItems(['44100 Hz', '88200 Hz', '176400 Hz', '352800 Hz'])
         self.srfreq.currentIndexChanged['int'].connect(self.samplerate)
-        self.srfreq.setMinimumWidth(125)
-        self.srfreq.move(160, 365)
-        txtHz = QLabel('Hz', self)
-        txtHz.setFont(myFont)
-        txtHz.move(290, 365)
+        tablayout2.addWidget(self.srfreq, 0, 2)
 
         # quit button
         self.btn_ok = QPushButton('OK', self)
-        self.btn_ok.resize(150, 50)
-        self.btn_ok.move(110, 430)
+        self.btn_ok.setMaximumWidth(100)
+
+        # layout
+        layout.addWidget(typetab)
+        hlayout.addWidget(self.btn_ok)
+        layout.addLayout(hlayout)
+        window = QWidget(self)
+        window.setLayout(layout)
+        self.setCentralWidget(window)
+
         self.initUI()
 
     def initUI(self):
