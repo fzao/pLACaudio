@@ -111,6 +111,15 @@ class Preference(QMainWindow):
         self.srfreq.currentIndexChanged['int'].connect(self.samplerate)
         tablayout2.addWidget(self.srfreq, 0, 2)
 
+        # combo (channels)
+        txtch = QLabel('Number of channels :', self)
+        txtch.setFont(myFont)
+        tablayout2.addWidget(txtch, 1, 0)
+        self.channels = QComboBox(self)
+        self.channels.addItems(['Default', 'Mono', 'Stereo'])
+        tablayout2.addWidget(self.channels, 1, 1)
+
+
         # quit button
         self.btn_ok = QPushButton('OK', self)
         self.btn_ok.setMaximumWidth(100)
