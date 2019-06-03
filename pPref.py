@@ -112,7 +112,7 @@ class Preference(QMainWindow):
         tablayout2.addWidget(self.srfreq, 0, 2)
 
         # combo (channels)
-        txtch = QLabel('Number of channels :', self)
+        txtch = QLabel('Number of channels for the output audio files :', self)
         txtch.setFont(myFont)
         tablayout2.addWidget(txtch, 1, 0)
         self.channels = QComboBox(self)
