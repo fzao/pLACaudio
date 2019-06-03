@@ -121,6 +121,7 @@ class App(QWidget):
         self.poweroff = self.settings.value('poweroff', type=int)
         self.trayicon = self.settings.value('trayicon', type=int)
         self.samplerate = self.settings.value('samplerate', type=int)
+        self.channels = self.settings.value('channels', type=int)
         self.initUI()
 
     def initUI(self):

@@ -28,8 +28,9 @@ License GNU GPL v3
 
 """
 import logging
-from pSettings import ChangeStyle, ShowLogger, ShowTrayIcon, Shutdown, SampleRate
-from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel, QComboBox, QWidget, QTabWidget, QGridLayout, QVBoxLayout, QHBoxLayout
+from pSettings import ChangeStyle, ShowLogger, ShowTrayIcon, Shutdown, SampleRate, Channels
+from PyQt5.QtWidgets import QMainWindow, QCheckBox, QPushButton, QRadioButton, QLabel, QComboBox,\
+                            QWidget, QTabWidget, QGridLayout, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5 import Qt
 from PyQt5.QtCore import pyqtSlot
@@ -115,9 +116,10 @@ class Preference(QMainWindow):
         txtch = QLabel('Number of channels for the output audio files :', self)
         txtch.setFont(myFont)
         tablayout2.addWidget(txtch, 1, 0)
-        self.channels = QComboBox(self)
-        self.channels.addItems(['Default', 'Mono', 'Stereo'])
-        tablayout2.addWidget(self.channels, 1, 1)
+        self.chn = QComboBox(self)
+        self.chn.addItems(['Default', 'Mono', 'Stereo'])
+        self.chn.currentIndexChanged['int'].connect(self.channels)
+        tablayout2.addWidget(self.chn, 1, 1)
 
 
         # quit button
@@ -161,6 +163,9 @@ class Preference(QMainWindow):
             self.srfreq.setEnabled(True)
             self.srfreq.setCurrentIndex(self.parent().samplerate - 1)
         self.sr.stateChanged.connect(self.changeSR)
+
+        # combo (channels)
+        self.chn.setCurrentIndex(self.parent().channels)
 
         # quit button
         self.btn_ok.clicked.connect(self.pref_exit)
@@ -229,6 +234,16 @@ class Preference(QMainWindow):
         elif value == 3:
             logging.info('Sample rate frequency is set to 352800 Hz')
         SampleRate(self.parent(), self.srfreq.currentIndex() + 1)
+
+    @pyqtSlot(int)
+    def channels(self, value):
+        if value == 0:
+            logging.info('The number of audio channels is the default one')
+        elif value == 1:
+            logging.info('Audio output is monophonic')
+        elif value == 2:
+            logging.info('Audio output is stereophonic')
+        Channels(self.parent(), value)
 
     def pref_exit(self):
         self.close()

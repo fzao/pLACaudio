@@ -72,3 +72,8 @@ def SampleRate(self, freq=0):
     self.samplerate = freq
     # save settings
     self.settings.setValue('samplerate', freq)
+
+def Channels(self, channel=0):
+    self.channels = channel
+    # save settings
+    self.settings.setValue('channels', channel)
