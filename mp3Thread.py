@@ -35,7 +35,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 class MP3Thread(QThread):
     update_progress_bar = pyqtSignal()
 
-    def __init__(self, audio_files, lossless_folder, lossy_location, qvalue, codec, samplerate):
+    def __init__(self, audio_files, lossless_folder, lossy_location, qvalue, codec, samplerate, channels):
         QThread.__init__(self)
         self.audio_files = audio_files
         self.lossless_folder = lossless_folder
@@ -43,6 +43,7 @@ class MP3Thread(QThread):
         self.qval = qvalue
         self.codec = codec
         self.samplerate = samplerate
+        self.channels = channels
         self.sep = '/'
         self.null = '/dev/null'
         if os.name == 'nt':
@@ -68,6 +69,7 @@ class MP3Thread(QThread):
             except OSError:
                 # logging.exception('Unable to create the destination folder')
                 pass
+        chn = '-ac ' + str(self.channels) + ' '
         if self.codec == 'MP3':
             ext = 'mp3'
             audio_file = file_name + '.' + ext
@@ -76,7 +78,7 @@ class MP3Thread(QThread):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                           + '"' + audio_file_in + '"'
                           + ' -vn -acodec libmp3lame -q:a '+ self.qval + ' -map_metadata 0'
-                          + ' -id3v2_version 3 '
+                          + ' -id3v2_version 3 ' + chn
                           + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'AAC':
@@ -86,7 +88,7 @@ class MP3Thread(QThread):
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -acodec aac -b:a ' + self.qval + ' -map_metadata 0 '
+                                + ' -vn -acodec aac -b:a ' + self.qval + ' -map_metadata 0 ' + chn
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'Ogg Vorbis':
@@ -100,7 +102,7 @@ class MP3Thread(QThread):
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -acodec libvorbis -q:a ' + self.qval + ' -map_metadata 0 ' + fe
+                                + ' -vn -acodec libvorbis -q:a ' + self.qval + ' -map_metadata 0 ' + fe + chn
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'Opus':
@@ -110,7 +112,7 @@ class MP3Thread(QThread):
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -acodec libopus -b:a ' + self.qval + ' -map_metadata 0 '
+                                + ' -vn -acodec libopus -b:a ' + self.qval + ' -map_metadata 0 ' + chn
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'FLAC':
@@ -130,7 +132,7 @@ class MP3Thread(QThread):
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -compression_level ' + self.qval + ' -map_metadata 0 ' + fe
+                                + ' -vn -compression_level ' + self.qval + ' -map_metadata 0 ' + fe + chn
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'ALAC':
@@ -150,7 +152,7 @@ class MP3Thread(QThread):
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn -acodec alac -compression_level ' + self.qval + ' -map_metadata 0 ' + fe
+                                + ' -vn -acodec alac -compression_level ' + self.qval + ' -map_metadata 0 ' + fe + chn
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'WAV':
@@ -170,7 +172,7 @@ class MP3Thread(QThread):
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn ' + ' -map_metadata 0 ' + fe
+                                + ' -vn ' + ' -map_metadata 0 ' + fe + chn
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
         elif self.codec == 'AIFF':
@@ -190,7 +192,7 @@ class MP3Thread(QThread):
             if not os.path.isfile(audio_file_out):
                 subprocess.call(ffmpeg + ' -nostats -loglevel 0 -i '
                                 + '"' + audio_file_in + '"'
-                                + ' -vn ' + ' -map_metadata 0 ' + fe
+                                + ' -vn ' + ' -map_metadata 0 ' + fe + chn
                                 + '"' + audio_file_out + '"' + ' > ' + self.null,
                                 shell=True)
     def run(self):

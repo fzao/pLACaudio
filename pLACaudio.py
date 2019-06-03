@@ -402,7 +402,7 @@ class App(QWidget):
         for i in range(len(audio)):
             q = self.qval[self.myformat][self.myquality][0]
             self.threads.append(MP3Thread(audio[i], self.lossless_folder, self.lossy_location, q, self.myformat,
-                                          self.samplerate))
+                                          self.samplerate, self.channels))
         self.nstart = 0
         for i in range(len(audio)):
             self.threads[i].update_progress_bar.connect(self.update_progress_bar)
