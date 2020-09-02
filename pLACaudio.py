@@ -213,8 +213,8 @@ class App(QWidget):
         self.elapsed_time.display('%03d:%02d:%02d' % (0, 0, 0))
 
         # CPU activity
-        self.cpu_percent.setMinimum(0.)
-        self.cpu_percent.setMaximum(100.)
+        self.cpu_percent.setMinimum(0)
+        self.cpu_percent.setMaximum(100)
         self.cpu_percent.setStyleSheet("QProgressBar::chunk { background-color: orange; }")
         self.cpu_percent.setToolTip('CPU activity')
         self.timer_cpu.timeout.connect(self.showCPU)
@@ -475,7 +475,7 @@ class App(QWidget):
                 self.cpu_percent.setStyleSheet(self.danger)
             self.cpu_percent.setValue(cpu_load)
         else:
-            self.cpu_percent.setValue(0.)
+            self.cpu_percent.setValue(0)
 
     @pyqtSlot()
     def showPERF(self):
