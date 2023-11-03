@@ -466,10 +466,10 @@ class App(QWidget):
     @pyqtSlot()
     def showCPU(self):
         if self.btn_stop.isEnabled() == True:
-            cpu_load = psutil.cpu_percent()
-            if cpu_load < 50.:
+            cpu_load = int(psutil.cpu_percent())
+            if cpu_load < 50:
                 self.cpu_percent.setStyleSheet(self.safe)
-            elif cpu_load < 80.:
+            elif cpu_load < 80:
                 self.cpu_percent.setStyleSheet(self.inter)
             else:
                 self.cpu_percent.setStyleSheet(self.danger)
